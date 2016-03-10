@@ -1,0 +1,17 @@
+{
+  "title":"My drop-down menu",
+  "config":[],
+  "emptyLabel":"no items found",
+  "items":[{"title":"colors","id":"colors","icon":"paint-brush","items":[
+    {"title":"red","id":"color_red"},
+    {"title":"blue","id":"color_blue"},
+    {"title":"yellow","id":"color_yellow"},
+    {"title":"green","id":"color_green","items":[{"title":"lime","id":"color_green_lime"},{"title":"leaf","id":"color_green_leaf"},{"title":"mint","id":"color_green_mint"}]}
+    ]},
+    {"title":"countries","id":"countries","icon":"globe","items":[
+      {"title":"germany","id":"country_germany"},
+      {"title":"france","id":"country_france"},
+      {"title":"usa","id":"country_usa"},
+      {"title":"italy","id":"country_italy"}
+      ]}]
+}

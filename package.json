@@ -1,0 +1,36 @@
+{
+  "dependencies": {
+    "babel-polyfill": "^6.0.0",
+    "css-loader": "0.9.1",
+    "express": "^4.13.3",
+    "jquery": "^2.2.1",
+    "less": "^2.5.3",
+    "less-loader": "^2.2.1",
+    "lodash": "^3.10.1",
+    "postcss-loader": "^0.8.0",
+    "postcss-nested": "^1.0.0",
+    "promise": "^7.0.4",
+    "raw-loader": "^0.5.1",
+    "react-onclickoutside": "^4.5.0",
+    "style-loader": "^0.13.0",
+    "underscore": "^1.8.3",
+    "webpack-dev-middleware": "^1.4.0",
+    "yargs": "^3.29.0"
+  },
+  "main": "./src/index.js",
+  "name": "react-tags",
+  "scripts": {
+    "start": "node devServer.js",
+    "upload": "npm pack&&curl -F package=@$npm_package_name-$npm_package_version.tgz https://igvtpWYGfWcFRzAapeDx@push.fury.io/burkhard-eggers&&rm *.tgz"
+  },
+  "version": "3.0.7",
+  "devDependencies": {
+    "react": "^0.14.6",
+    "react-dom": "^0.14.6",
+    "babel-core": "^6.4.0",
+    "babel-loader": "^6.2.1",
+    "babel-preset-es2015": "^6.3.13",
+    "babel-preset-react": "^6.3.13",
+    "webpack": "^1.12.11"
+  }
+}
