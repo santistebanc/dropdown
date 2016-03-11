@@ -1,4 +1,5 @@
 var React = require('react');
+import ReactDOM from 'react-dom';
 
 require('./DropDownAdvanced.less');
 
@@ -31,7 +32,9 @@ var DropDown = React.createClass({
   },
   render() {
     let attributes = {hasSearchBar:this.props.hasSearchBar,
+      pos:this.props.pos,
       hasSelectMenu:this.props.hasSelectMenu,
+      selectedItems:this.props.selectedItems,
       onSelectItem:this.props.onSelectItem,
       onRemoveItem:this.props.onRemoveItem,
       onClickItem:this.onClickItem,
@@ -91,6 +94,9 @@ var Menu = React.createClass( {
     }else if(this.props.data){
       this.setState(this.props.data);
     }
+    if(this.props.selectedItems){
+      this.setState({selectedItems:this.props.selectedItems});
+    }
   },
   componentWillUnmount: function() {
     this.serverRequest && this.serverRequest.abort();
@@ -102,9 +108,15 @@ var Menu = React.createClass( {
     this.removeItem(item);
     this.setState({menu_data:undefined,display_menu:false});
   },
-  onClickItem(item){
+  onClickItem(item,idx){
     if(item.items){
-      this.changeMenu(item);
+      this.setState({menu_data:item,display_menu:true});
+      let el = ReactDOM.findDOMNode(this.refs["item"+idx]);
+      let shape = calcRelativeShape(el,ReactDOM.findDOMNode(this.refs.tag));
+      let itempos = {};
+      itempos.top = shape.y;
+      itempos.left = shape.x+shape.width;
+      this.setState({menuPos:itempos});
     }else{
       this.setState({menu_data:undefined,display_menu:false});
       if(item.selected){
@@ -115,43 +127,51 @@ var Menu = React.createClass( {
     }
   },
   selectItem(item){
-    console.log("select",this.state.title);
     item.selected = true;
     this.setState({selectedItems:[...this.state.selectedItems,item]});
-    if(this.props.onSelectItem){
-      this.props.onSelectItem(item);
-    }
+    this.props.onSelectItem && this.props.onSelectItem(item);
   },
   removeItem(item){
-    console.log("remove",this.state.title);
     item.selected = false;
     let index = this.state.selectedItems.indexOf(item);
     let arr = this.state.selectedItems.slice(0);
     arr.splice(index,1);
     this.setState({selectedItems:arr});
-    if(this.props.onRemoveItem){
-      this.props.onRemoveItem(item);
-    }
+    this.props.onRemoveItem && this.props.onRemoveItem(item);
   },
-  changeMenu(data){
-      this.setState({menu_data:data,display_menu:true});
+  searchInSeachbar(data){
+    this.setState({menu_data:data,display_menu:true});
+    let el = ReactDOM.findDOMNode(this.refs.search);
+    let shape = calcRelativeShape(el,ReactDOM.findDOMNode(this.refs.tag));
+    let itempos = {};
+    itempos.top = shape.y+shape.height+8;
+    itempos.left = shape.x;
+    this.setState({menuPos:itempos});
   },
   render() {
-    let filtered_items = this.state.items.filter(function(i) { return i.selected });
+    let styles = {};
+    styles.width = this.state.width;
+    styles.left = this.props.pos && this.props.pos.left;
+    styles.top = this.props.pos && this.props.pos.top;
     return (
-      <div className={"drop-down-tag"} style={this.state.width?{width:this.state.width}:{}}>
+      <div className={"drop-down-tag"} style={styles} ref="tag">
         <section>
-          {this.state.title && <h4>{this.state.title}</h4>}
-          {this.props.hasSelectMenu && <StaticMenu data={this.state.selectedItems} onClickItem={this.clickOnSelectedMenu}/>}
-          {this.props.hasSearchBar && <SearchBar data={this.state.items} placeholder={this.state.searchbar_placeholder} onSelect={this.changeMenu} autoFocus/>}
+          {this.state.title && <h4 ref="title">{this.state.title}</h4>}
+          {this.props.hasSelectMenu && <StaticMenu ref="selected" data={this.state.selectedItems} onClickItem={this.clickOnSelectedMenu}/>}
+          {this.props.hasSearchBar && <SearchBar ref="search" data={this.state.items} placeholder={this.state.searchbar_placeholder} onSelect={this.searchInSeachbar} autoFocus/>}
           {this.state.items && this.state.items.length>0?
-          <ul>{this.state.items.map((item, idx) => <Item key={idx} data={item} onClickItem={this.onClickItem}>
+          <ul ref="list">{this.state.items.map((item, idx) => <Item key={idx} num={idx} ref={"item"+idx} data={item} onClickItem={this.onClickItem}>
             {this.state.customItem && this.state.customItem(item)}
           </Item>)}</ul>
           :
           <p className={"empty-label"}>{this.state.emptyLabel}</p>}
         </section>
-        <DropDown data={this.state.menu_data} onClickItem={this.props.onClickItem} onSelectItem={this.selectItem} onRemoveItem={this.removeItem} manualVisible={this.state.display_menu}/>
+        <DropDown data={this.state.menu_data}
+          pos={this.state.menuPos}
+          onClickItem={this.props.onClickItem}
+          onSelectItem={this.selectItem}
+          onRemoveItem={this.removeItem}
+          manualVisible={this.state.display_menu}/>
       </div>
     );
   }
@@ -168,7 +188,7 @@ var StaticMenu = React.createClass( {
     if(this.props.data && this.props.data.length>0){
       return (
             <ul className={"selected-menu"}>
-              {this.props.data.map((item, idx) => <Item key={idx} data={item} onClickItem={this.onClickItem}>{this.customItem(item)}</Item>)}
+              {this.props.data.map((item, idx) => <Item key={idx} data={item} onClickItem={this.onClickItem} dontFormat>{this.customItem(item)}</Item>)}
             </ul>
       );
     }
@@ -178,9 +198,7 @@ var StaticMenu = React.createClass( {
 
 var Item = React.createClass({
   onClick(){
-    if(this.props.onClickItem){
-      this.props.onClickItem(this.props.data);
-    }
+    this.props.onClickItem && this.props.onClickItem(this.props.data,this.props.num);
   },
   handleKeyPress(e){;
     console.log("key");
@@ -188,7 +206,7 @@ var Item = React.createClass({
   render() {
     const data = this.props.data;
     const inside = this.props.children?this.props.children:<a>{icon(data.icon)}{data.title}{data.items && caret()}</a>;
-    const element = this.props.data.selected?<span className="menu-light">{inside}</span>:inside;
+    const element = this.props.data.selected && !this.props.dontFormat?<span className="menu-light">{inside}</span>:inside;
     return <li onClick={this.onClick}>{element}</li>;
   }
 });
@@ -237,6 +255,15 @@ var SearchBar = React.createClass({
   }
 });
 
+function calcRelativeShape(element,root,init_x=0,init_y=0){
+  let el = $(element);
+  let position = el.position();
+  let left = position.left + parseInt(el.css('marginLeft'), 10)+ parseInt(el.css('paddingLeft'), 10);
+  let top = position.top + parseInt(el.css('marginTop'), 10)+ parseInt(el.css('paddingTop'), 10);
+  let w = el.width() + parseInt(el.css('marginRight'), 10) + parseInt(el.css('paddingRight'), 10);
+  let h = el.height() + parseInt(el.css('marginBottom'), 10) + parseInt(el.css('paddingBottom'), 10);
+  return {x:left,y:top,width:w,height:h};
+}
 
 
 function formatText(string,positions,size){

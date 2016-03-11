@@ -7,9 +7,9 @@
   cursor: default;
   .default-font;
   background-color: @menu-background-color;
-  min-width: 50px;
-  max-height: 150px;
-  max-width: 1000px;
+  min-width: 70px;
+  max-height: 600px;
+  max-width: 300px;
 
   padding: 5px 0;
   margin: 2px 0 0;
@@ -54,6 +54,7 @@
 }
 
 .drop-down-tag {
+  z-index: 1000;
   display: inline;
   position: absolute;
   #menu-style;
@@ -68,12 +69,11 @@
     color: @disabled-text-color;
   }
   section{
+    width: 100%;
     display: block;
     overflow: auto;
-    height: 100%;
     //white-space: nowrap;
     position: relative;
-    z-index: 1000;
     h4 {
       display: block;
       white-space: normal;
