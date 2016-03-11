@@ -7,18 +7,15 @@ var Index = React.createClass({
     console.log("this is the custom method");
   },
     render() {
+      //<DropDown el={"but1"} src={"/data"} hasSearchBar />
         return (
             <div className="component-documentation">
                 <h1>MultiDropDown</h1>
                 <br / >
                 <br / >
-                  <DropDown src={"/data"} hasSearchBar><button>Button</button></DropDown>
+                  <DropDown src={"/data"} hasSearchBar hasSelectMenu><button ref="but1">Button</button></DropDown>
                 <br / >
                 <br / >
-                  <DropDown src={"/data"} onSelect={this.dropcustom}><a href="#">Link with custom method</a></DropDown>
-                <br / >
-                <br / >
-                  <DropDown src={"/data"}><input type="button" value="Input button"/></DropDown>
             </div>
         );
     }

@@ -16,11 +16,11 @@ var DropDown = React.createClass({
   show(){
     this.setState({visible:true});
   },
-  onSelect(item){
-    if(this.props.onSelect){
-      this.props.onSelect(item);
+  onClickItem(item){
+    if(this.props.onClickItem){
+      this.props.onClickItem(item);
     }else{
-      //if no function onSelect is supplied log data to console
+      //if no function onClickItem is supplied log data to console
       console.log("item selected: ",item);
     }
   },
@@ -30,25 +30,39 @@ var DropDown = React.createClass({
     }
   },
   render() {
-    if(this.props.manualVisible !== undefined){
-      var childrenWithProps = this.props.children;
-    }else{
-      var childrenWithProps = React.Children.map(this.props.children, (child) => {
-        return React.cloneElement(child, {onClick: this.show});
-      });
-    }
     let attributes = {hasSearchBar:this.props.hasSearchBar,
-                      onSelect:this.onSelect,
-                      onLoseFocus:this.hide
-                     };
-      attributes.data = this.props.data;
-      attributes.src = this.props.src;
+      hasSelectMenu:this.props.hasSelectMenu,
+      onSelectItem:this.props.onSelectItem,
+      onRemoveItem:this.props.onRemoveItem,
+      onClickItem:this.onClickItem,
+      onLoseFocus:this.hide};
+    attributes.data = this.props.data;
+    attributes.src = this.props.src;
+    let menu = <Menu {...attributes} />;
+
+    if(this.props.children){
+
+      if(this.props.manualVisible !== undefined){
+        var childrenWithProps = this.props.children;
+      }else{
+        var childrenWithProps = React.Children.map(this.props.children, (child) => {
+          return React.cloneElement(child, {onClick: this.show});
+        });
+      }
       return (
-          <div className="wrapping-div">
-              {childrenWithProps}
-              {this.state.visible && <Menu {...attributes} />}
-          </div>
-      );
+            <div className="wrapping-div">
+                {childrenWithProps}
+                {this.state.visible && menu}
+            </div>
+        );
+
+    }else{
+        if(this.state.visible){
+          return menu;
+        }else{
+          return <div></div>;
+        }
+    }
   }
 });
 
@@ -57,13 +71,15 @@ var Menu = React.createClass( {
     require('react-onclickoutside')
   ],
   handleClickOutside: function(evt) {
+    this.setState({menu_data:undefined,display_menu:false});
     this.props.onLoseFocus();
   },
   getInitialState() {
     return {
       items: [],
       emptyLabel:"No hits",
-      searchbar_placeholder:"search..."
+      searchbar_placeholder:"search...",
+      selectedItems:[]
     };
   },
   componentDidMount: function() {
@@ -82,25 +98,89 @@ var Menu = React.createClass( {
   componentWillReceiveProps(nextProps){
       this.setState(nextProps.data);
   },
+  clickOnSelectedMenu(item){
+    this.removeItem(item);
+    this.setState({menu_data:undefined,display_menu:false});
+  },
+  onClickItem(item){
+    if(item.items){
+      this.changeMenu(item);
+    }else{
+      this.setState({menu_data:undefined,display_menu:false});
+      if(item.selected){
+          this.removeItem(item);
+      }else{
+        this.selectItem(item);
+      }
+    }
+  },
+  selectItem(item){
+    console.log("select",this.state.title);
+    item.selected = true;
+    this.setState({selectedItems:[...this.state.selectedItems,item]});
+    if(this.props.onSelectItem){
+      this.props.onSelectItem(item);
+    }
+  },
+  removeItem(item){
+    console.log("remove",this.state.title);
+    item.selected = false;
+    let index = this.state.selectedItems.indexOf(item);
+    let arr = this.state.selectedItems.slice(0);
+    arr.splice(index,1);
+    this.setState({selectedItems:arr});
+    if(this.props.onRemoveItem){
+      this.props.onRemoveItem(item);
+    }
+  },
+  changeMenu(data){
+      this.setState({menu_data:data,display_menu:true});
+  },
   render() {
+    let filtered_items = this.state.items.filter(function(i) { return i.selected });
     return (
-      <div className={"drop-down-tag"}>
+      <div className={"drop-down-tag"} style={this.state.width?{width:this.state.width}:{}}>
         <section>
           {this.state.title && <h4>{this.state.title}</h4>}
-          {this.props.hasSearchBar && <SearchBar data={this.state.items} placeholder={this.state.searchbar_placeholder} onSelect={this.props.onSelect} autoFocus/>}
+          {this.props.hasSelectMenu && <StaticMenu data={this.state.selectedItems} onClickItem={this.clickOnSelectedMenu}/>}
+          {this.props.hasSearchBar && <SearchBar data={this.state.items} placeholder={this.state.searchbar_placeholder} onSelect={this.changeMenu} autoFocus/>}
           {this.state.items && this.state.items.length>0?
-          <ul>{this.state.items.map((item, idx) => <Item key={idx} data={item} onSelect={this.props.onSelect}>{this.state.customItem && this.state.customItem(item)}</Item>)}</ul>
+          <ul>{this.state.items.map((item, idx) => <Item key={idx} data={item} onClickItem={this.onClickItem}>
+            {this.state.customItem && this.state.customItem(item)}
+          </Item>)}</ul>
           :
           <p className={"empty-label"}>{this.state.emptyLabel}</p>}
         </section>
+        <DropDown data={this.state.menu_data} onClickItem={this.props.onClickItem} onSelectItem={this.selectItem} onRemoveItem={this.removeItem} manualVisible={this.state.display_menu}/>
       </div>
     );
   }
 });
 
+var StaticMenu = React.createClass( {
+  onClickItem(item){
+    this.props.onClickItem(item);
+  },
+  customItem(item){
+    return <span><a>{icon("remove")}</a><a>{icon(item.icon)}{item.title}</a></span>;
+  },
+  render() {
+    if(this.props.data && this.props.data.length>0){
+      return (
+            <ul className={"selected-menu"}>
+              {this.props.data.map((item, idx) => <Item key={idx} data={item} onClickItem={this.onClickItem}>{this.customItem(item)}</Item>)}
+            </ul>
+      );
+    }
+    return <p className={"empty-label"}>...</p>;
+  }
+});
+
 var Item = React.createClass({
-  onClick(){;
-    this.props.onSelect(this.props.data);
+  onClick(){
+    if(this.props.onClickItem){
+      this.props.onClickItem(this.props.data);
+    }
   },
   handleKeyPress(e){;
     console.log("key");
@@ -108,12 +188,8 @@ var Item = React.createClass({
   render() {
     const data = this.props.data;
     const inside = this.props.children?this.props.children:<a>{icon(data.icon)}{data.title}{data.items && caret()}</a>;
-    const element = <li onClick={this.onClick}>{inside}</li>;
-    if(data.items){
-      return <DropDown data={data} onSelect={this.props.onSelect}>{element}</DropDown>;
-    }else{
-      return element;
-    }
+    const element = this.props.data.selected?<span className="menu-light">{inside}</span>:inside;
+    return <li onClick={this.onClick}>{element}</li>;
   }
 });
 
@@ -121,20 +197,21 @@ var SearchBar = React.createClass({
   getInitialState() {
     return {
       value: "",
-      display_results: false,
       results:[]
     };
   },
   onChange(event){
     let newvalue = event.target.value;
     this.setState({value:newvalue});
-    this.setState({display_results:newvalue.length>0});
-    this.searchInput(newvalue);
+    if(newvalue.length>0){
+      this.searchInput(newvalue);
+    }
   },
   onFocus(event){
     let newvalue = event.target.value;
-    this.setState({display_results:newvalue.length>0});
-    this.searchInput();
+    if(newvalue.length>0){
+      this.searchInput(newvalue);
+    }
   },
   searchInput(value){
     let search_results = SearchFunction(this.props.data,value);
@@ -151,15 +228,16 @@ var SearchBar = React.createClass({
       return <a><span className="menu-light">{path_output}</span>{item_output}</a>;
     };
     this.setState({results:res});
+    this.props.onSelect(res);
   },
   render(){
     return(
-      <DropDown manualVisible={this.state.display_results} data={this.state.results} onSelect={this.props.onSelect}>
-          <input type="text" value={this.state.value} placeholder={this.props.placeholder} autoFocus={this.props.autoFocus} onChange={this.onChange} onFocus={this.onFocus}/>
-      </DropDown>
+      <input type="text" value={this.state.value} placeholder={this.props.placeholder} autoFocus={this.props.autoFocus} onChange={this.onChange} onFocus={this.onFocus}/>
     );
   }
 });
+
+
 
 function formatText(string,positions,size){
   let result = [];

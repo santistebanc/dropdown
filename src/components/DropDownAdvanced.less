@@ -7,9 +7,9 @@
   cursor: default;
   .default-font;
   background-color: @menu-background-color;
-  min-width: 100px;
-  max-height: 100px;
-  max-width: 150px;
+  min-width: 50px;
+  max-height: 150px;
+  max-width: 1000px;
 
   padding: 5px 0;
   margin: 2px 0 0;
@@ -54,7 +54,7 @@
 }
 
 .drop-down-tag {
-  display: block;
+  display: inline;
   position: absolute;
   #menu-style;
 
@@ -69,7 +69,9 @@
   }
   section{
     display: block;
-    white-space: nowrap;
+    overflow: auto;
+    height: 100%;
+    //white-space: nowrap;
     position: relative;
     z-index: 1000;
     h4 {
@@ -81,10 +83,12 @@
       width: 100%;
       #searchbar-style
     }
-    li{
-      #item-style;
-      &:hover {
-        #item-hover-style
+    ul{
+      li{
+        #item-style;
+        &:hover {
+          #item-hover-style
+        }
       }
     }
   }
