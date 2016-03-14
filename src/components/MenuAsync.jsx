@@ -9,10 +9,17 @@ class MenuAsync extends Menu {
     this.getData();
   }
   getData() {
-    this.serverRequest = $.get(this.props.src, ((result) => {this.setState({data:result})}).bind(this) );
+    this.serverRequest = $.get(this.props.data, ((result) => {this.setState({data:result})}).bind(this) );
   }
   componentWillUnmount() {
     this.serverRequest && this.serverRequest.abort();
+  }
+  render(){
+    if(!this.state.data){
+      return <p className={"empty-label"}>{this.props.emptyLabel}</p>;
+    }else{
+      return super.render();
+    }
   }
 }
 

@@ -13,7 +13,7 @@ class MenuItem extends React.Component {
 
     if(data.items){
       return(
-      <DropDown data={data} onSelectItem={onSelectItem} {...other} >
+      <DropDown data={data} {...other} >
         <li><Icon name={data.icon}/>{data.title}<DropDownCaretIcon/></li>
       </DropDown>
       );

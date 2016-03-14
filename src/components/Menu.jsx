@@ -2,44 +2,67 @@ import React from 'react';
 import MenuItem from './MenuItem.jsx';
 import SearchBar from './SearchBar.jsx';
 
-var reactMixin = require('react-mixin');
-var onClickOutsideMixin = require('react-onclickoutside')
+let ClickOutHandler = require('react-onclickout');
 
 class Menu extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {};
-    this.handleClickOutside = this.handleClickOutside.bind(this);
+    //immediately focus when instantiated and trigger unfocus to parent menu
+    this.state = {focused:true};
+    this.props.onFocus && this.props.onFocus(this);
+    this.handleClickOutside = this.handleClickOutside.bind(this); //needed for mixin
   }
   handleClickOutside(evt) {
-    this.props.onLoseFocus();
+    console.log("click outside of: ", this.props.data.title);
+    if(this.state.focused){
+      //this.props.onClose();
+    }
   }
-  asyncData(){
-    //nothing to do here
+  handleFocusAnother(menu){
+    console.log(this.props.data.title,"has focused another:", menu.props.data.title);
+    this.unfocus();
+  }
+  unfocus() {
+    this.setState({focused:false});
+  }
+  focus() {
+    this.setState({focused:true});
+    this.props.onFocus && this.props.onFocus(this);
   }
   render() {
-    var { data, searchbar, width, height, onLoseFocus, ...other } = this.props;
+    var { data, searchbar, width, height, onClose, onSelectOption, ...other } = this.props;
 
     let style_wrapper = {width:width};
     let style_menu = {height:height};
-        console.log("here",this.state.data);
-    data = this.state.data?this.state.data:data;
+    style_wrapper.border = this.state.focused && "3px solid #73AD21";
 
-    return (
-
-      <div style={style_wrapper} className={"menu-tag"}>
-        <h4>{data.title}</h4>
-        {searchbar && <SearchBar/>}
-        <ul style={style_menu}>
-          {data && data.items && data.items.map((item,index) => {
-            return <MenuItem key={index} data={item} {...other} />
-          })}
-        </ul>
-      </div>
+    //override data with the asynchronously obtained one
+    data = this.state.data || data;
+    return(
+      <ClickOutHandler onClickOut={this.handleClickOutside}>
+        <div style={style_wrapper} className={"menu-tag"}>
+          <h4>{data.title}</h4>
+          {searchbar && <SearchBar/>}
+          <ul style={style_menu}>
+            {this.renderItems(data, other)}
+          </ul>
+        </div>
+      </ClickOutHandler>
     );
+  }
+  renderItems(data, other){
+      if(data && data.items){
+        return data.items.map((item,index) => {
+          return <MenuItem key={index} data={item} onFocus={this.handleFocusAnother.bind(this)} {...other} />
+        });
+      }else{
+          return <p className={"empty-label"}>{this.props.emptyLabel}</p>;
+      }
   }
 }
 
-reactMixin(Menu.prototype, onClickOutsideMixin);
+Menu.defaultProps = {
+  emptyLabel:"no data..."
+};
 
 export default Menu;

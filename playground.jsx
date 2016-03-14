@@ -34,7 +34,7 @@ var Index = React.createClass({
                 <h1>MultiDropDown</h1>
                 <br / >
                 <br / >
-                  <DropDown async src={"/data"}><button ref="but1">Button</button></DropDown>
+                  <DropDown data={mock}><button ref="but1">Button</button></DropDown>
                 <br / >
                 <br / >
             </div>

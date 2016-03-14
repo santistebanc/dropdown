@@ -13,7 +13,7 @@
     "promise": "^7.0.4",
     "raw-loader": "^0.5.1",
     "react-mixin": "^2.0.2",
-    "react-onclickoutside": "^4.5.0",
+    "react-onclickout": "^2.0.4",
     "style-loader": "^0.13.0",
     "underscore": "^1.8.3",
     "webpack-dev-middleware": "^1.4.0",

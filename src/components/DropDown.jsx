@@ -18,20 +18,20 @@ class DropDown extends React.Component {
     }
     renderMenu(selectable, other){
       if(this.props.async){
-        return selectable?<SelectableMenuAsync {...other} />:<MenuAsync onLoseFocus={this.hide.bind(this)} {...other} />;
+        return selectable?<SelectableMenuAsync {...other} />:<MenuAsync onClose={this.hide.bind(this)} {...other} />;
       }else{
-        return selectable?<SelectableMenu {...other} />:<Menu onLoseFocus={this.hide.bind(this)} {...other} />;
+        return selectable?<SelectableMenu {...other} />:<Menu onClose={this.hide.bind(this)} {...other} />;
       }
     }
     render() {
 
-      var { children, selectable, manualVisible, ...other } = this.props;
+      var { children, async, selectable, manualVisible, ...other } = this.props;
 
       let menu = this.renderMenu(selectable, other);
 
       if(manualVisible !== undefined){
         var childrenWithProps = children;
-      }else{
+      }else{ //transforms whichever child elements to become clickable
         var childrenWithProps = React.Children.map(children, (child) => {
           return React.cloneElement(child, {onClick: this.show.bind(this)});
         });
