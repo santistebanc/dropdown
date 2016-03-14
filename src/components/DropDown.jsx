@@ -1,6 +1,8 @@
 import React from 'react';
 import Menu from './Menu.jsx';
+import MenuAsync from './MenuAsync.jsx';
 import SelectableMenu from './SelectableMenu.jsx';
+import SelectableMenuAsync from './SelectableMenu.jsx';
 require('./DropDown.less');
 
 class DropDown extends React.Component {
@@ -14,14 +16,18 @@ class DropDown extends React.Component {
     hide() {
       this.setState({visible:false});
     }
-    handleLoseFocus(){
-
+    renderMenu(selectable, other){
+      if(this.props.async){
+        return selectable?<SelectableMenuAsync {...other} />:<MenuAsync onLoseFocus={this.hide.bind(this)} {...other} />;
+      }else{
+        return selectable?<SelectableMenu {...other} />:<Menu onLoseFocus={this.hide.bind(this)} {...other} />;
+      }
     }
     render() {
 
       var { children, selectable, manualVisible, ...other } = this.props;
 
-      let menu = selectable?<SelectableMenu {...other} />:<Menu onLoseFocus={this.handleLoseFocus} {...other} />;
+      let menu = this.renderMenu(selectable, other);
 
       if(manualVisible !== undefined){
         var childrenWithProps = children;

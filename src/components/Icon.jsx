@@ -6,7 +6,7 @@ class Icon extends React.Component {
   }
   render() {
     const iconcss = "fa fa-" + this.props.name;
-    return <i className={iconcss}></i>;
+    return <i className={iconcss}/>;
   }
 }
 

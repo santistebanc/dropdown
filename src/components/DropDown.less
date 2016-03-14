@@ -67,6 +67,10 @@
   .menu-light{
     color: @disabled-text-color;
   }
+  .dd-caret{
+    float:right;
+    margin-left: 5px;
+  }
   h4 {
     //white-space: normal;
     #title-style;
@@ -79,6 +83,8 @@
     overflow: auto;
     max-height: 200px;
     li{
+      display: inline-block;
+      width:100%;
       #item-style;
       &:hover {
         #item-hover-style
