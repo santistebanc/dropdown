@@ -126,6 +126,17 @@ var Menu = React.createClass( {
       }
     }
   },
+  onHoverItem(item,idx){
+    if(item.items){
+      this.setState({menu_data:item,display_menu:true});
+      let el = ReactDOM.findDOMNode(this.refs["item"+idx]);
+      let shape = calcRelativeShape(el,ReactDOM.findDOMNode(this.refs.tag));
+      let itempos = {};
+      itempos.top = shape.y;
+      itempos.left = shape.x+shape.width;
+      this.setState({menuPos:itempos});
+    }
+  },
   selectItem(item){
     item.selected = true;
     this.setState({selectedItems:[...this.state.selectedItems,item]});
@@ -139,8 +150,8 @@ var Menu = React.createClass( {
     this.setState({selectedItems:arr});
     this.props.onRemoveItem && this.props.onRemoveItem(item);
   },
-  searchInSeachbar(data){
-    this.setState({menu_data:data,display_menu:true});
+  searchInSeachbar(data,show=true){
+    this.setState({menu_data:data,display_menu:show});
     let el = ReactDOM.findDOMNode(this.refs.search);
     let shape = calcRelativeShape(el,ReactDOM.findDOMNode(this.refs.tag));
     let itempos = {};
@@ -200,6 +211,9 @@ var Item = React.createClass({
   onClick(){
     this.props.onClickItem && this.props.onClickItem(this.props.data,this.props.num);
   },
+  onHover(){
+    this.props.onHover && this.props.onHover(this.props.data,this.props.num);
+  },
   handleKeyPress(e){;
     console.log("key");
   },
@@ -207,7 +221,7 @@ var Item = React.createClass({
     const data = this.props.data;
     const inside = this.props.children?this.props.children:<a>{icon(data.icon)}{data.title}{data.items && caret()}</a>;
     const element = this.props.data.selected && !this.props.dontFormat?<span className="menu-light">{inside}</span>:inside;
-    return <li onClick={this.onClick}>{element}</li>;
+    return <li onClick={this.onClick} onMouseOver={this.onHover}>{element}</li>;
   }
 });
 
@@ -223,12 +237,16 @@ var SearchBar = React.createClass({
     this.setState({value:newvalue});
     if(newvalue.length>0){
       this.searchInput(newvalue);
+    }else{
+      this.props.onSelect(undefined,false);
     }
   },
   onFocus(event){
     let newvalue = event.target.value;
     if(newvalue.length>0){
       this.searchInput(newvalue);
+    }else{
+      this.props.onSelect(undefined,false);
     }
   },
   searchInput(value){
@@ -246,7 +264,7 @@ var SearchBar = React.createClass({
       return <a><span className="menu-light">{path_output}</span>{item_output}</a>;
     };
     this.setState({results:res});
-    this.props.onSelect(res);
+    this.props.onSelect(res,true);
   },
   render(){
     return(
