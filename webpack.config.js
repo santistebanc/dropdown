@@ -19,7 +19,8 @@ module.exports = {
         loader: 'babel', // 'babel-loader' is also a legal name to reference
         query: {
           cacheDirectory: true,
-          presets: ['react', 'es2015']
+          presets: ['react', 'es2015'],
+          plugins:['transform-object-rest-spread']
         }
     },
     { test: /\.less$/, loader: "style!css!less" },

@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "babel-plugin-transform-object-rest-spread": "^6.6.5",
     "babel-polyfill": "^6.0.0",
     "css-loader": "0.9.1",
     "express": "^4.13.3",
@@ -11,6 +12,7 @@
     "postcss-nested": "^1.0.0",
     "promise": "^7.0.4",
     "raw-loader": "^0.5.1",
+    "react-mixin": "^2.0.2",
     "react-onclickoutside": "^4.5.0",
     "style-loader": "^0.13.0",
     "underscore": "^1.8.3",

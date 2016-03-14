@@ -1,6 +1,27 @@
 var React = require('react');
 import ReactDOM from 'react-dom';
-import DropDown from './src/components/DropDownAdvanced.jsx';
+import DropDown from './src/components/DropDown.jsx';
+
+let mock = {
+  "title":"My drop-down menu",
+  "config":[],
+  "emptyLabel":"no items found",
+  "width":"200px",
+  "items":[{"title":"colors","id":"colors","icon":"paint-brush","items":[
+    {"title":"red","id":"color_red"},
+    {"title":"blue","id":"color_blue"},
+    {"title":"yellow","id":"color_yellow"},
+    {"title":"green","id":"color_green","items":[{"title":"lime","id":"color_green_lime"},{"title":"leaf","id":"color_green_leaf"},{"title":"mint","id":"color_green_mint"}]}
+    ]},
+    {"title":"countries","id":"countries","icon":"globe","items":[
+      {"title":"germany","id":"country_germany"},
+      {"title":"france","id":"country_france"},
+      {"title":"usa","id":"country_usa"},
+      {"title":"italy","id":"country_italy"}
+      ]}]
+};
+
+
 
 var Index = React.createClass({
   dropcustom(item){
@@ -13,7 +34,7 @@ var Index = React.createClass({
                 <h1>MultiDropDown</h1>
                 <br / >
                 <br / >
-                  <DropDown src={"/data"} hasSearchBar hasSelectMenu><button ref="but1">Button</button></DropDown>
+                  <DropDown data={mock}><button ref="but1">Button</button></DropDown>
                 <br / >
                 <br / >
             </div>
