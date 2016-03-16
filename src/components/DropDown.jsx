@@ -1,8 +1,6 @@
 import React from 'react';
 import Menu from './Menu.jsx';
-import MenuAsync from './MenuAsync.jsx';
-import SelectableMenu from './SelectableMenu.jsx';
-import SelectableMenuAsync from './SelectableMenu.jsx';
+
 require('./DropDown.less');
 
 let ClickOutHandler = require('react-onclickout');
@@ -21,18 +19,11 @@ class DropDown extends React.Component {
     handleClickOutside(evt) {
       this.hideMenu();
     }
-    renderMenu(selectable, other){
-      if(this.props.async){
-        return selectable?<SelectableMenuAsync {...other} />:<MenuAsync onClose={this.hideMenu.bind(this)} {...other} />;
-      }else{
-        return selectable?<SelectableMenu {...other} />:<Menu onClose={this.hideMenu.bind(this)} {...other} />;
-      }
-    }
     render() {
 
-      var { children, async, selectable, onClose, ...other } = this.props;
+      var { children, async, onClose, ...other } = this.props;
 
-      let menu = this.renderMenu(selectable, other);
+      let menu = <Menu onClose={this.hideMenu.bind(this)} {...other} />;
 
       //transforms whichever child elements to become clickable
       var childrenWithProps = React.Children.map(children, (child) => {

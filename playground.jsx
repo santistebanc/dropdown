@@ -37,7 +37,7 @@ var Index = React.createClass({
                 <h1>MultiDropDown</h1>
                 <br / >
                 <br / >
-                  <DropDown data={mock} searchbar={searchbarprops}><button>Button</button></DropDown>
+                  <DropDown data={mock} selectable searchbar={searchbarprops}><button>Button</button></DropDown>
                 <br / >
                 <br / >
             </div>
