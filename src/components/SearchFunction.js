@@ -2,7 +2,6 @@ var Search = function(data,input){
   return input?RecursiveSearch(data,input,[]):[];
 };
 
-
 function RecursiveSearch(items,input,path){
   let found = [];
   items.forEach(function(item){
@@ -43,4 +42,4 @@ function getAllIndexes(string, sub) {
     return indexes;
 }
 
-module.exports = Search;
+export default Search;

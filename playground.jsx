@@ -22,6 +22,9 @@ let mock = {
 };
 
 
+let searchbarprops = {placeholder:"search...", autoFocus:true};
+
+
 
 var Index = React.createClass({
   dropcustom(item){
@@ -34,7 +37,7 @@ var Index = React.createClass({
                 <h1>MultiDropDown</h1>
                 <br / >
                 <br / >
-                  <DropDown data={mock}><button>Button</button></DropDown>
+                  <DropDown data={mock} searchbar={searchbarprops}><button>Button</button></DropDown>
                 <br / >
                 <br / >
             </div>

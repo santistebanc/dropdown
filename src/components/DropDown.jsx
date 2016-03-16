@@ -10,36 +10,36 @@ let ClickOutHandler = require('react-onclickout');
 class DropDown extends React.Component {
   constructor(props) {
       super(props);
-      this.state = {visible: false};
+      this.state = {menuVisible: false};
     }
-    show() {
-      this.setState({visible:true});
+    showMenu() {
+      this.setState({menuVisible:true});
     }
-    hide() {
-      this.setState({visible:false});
+    hideMenu() {
+      this.setState({menuVisible:false});
     }
     handleClickOutside(evt) {
-      this.hide();
+      this.hideMenu();
     }
     renderMenu(selectable, other){
       if(this.props.async){
-        return selectable?<SelectableMenuAsync {...other} />:<MenuAsync onClose={this.hide.bind(this)} {...other} />;
+        return selectable?<SelectableMenuAsync {...other} />:<MenuAsync onClose={this.hideMenu.bind(this)} {...other} />;
       }else{
-        return selectable?<SelectableMenu {...other} />:<Menu onClose={this.hide.bind(this)} {...other} />;
+        return selectable?<SelectableMenu {...other} />:<Menu onClose={this.hideMenu.bind(this)} {...other} />;
       }
     }
     render() {
 
-      var { children, async, selectable, ...other } = this.props;
+      var { children, async, selectable, onClose, ...other } = this.props;
 
       let menu = this.renderMenu(selectable, other);
 
       //transforms whichever child elements to become clickable
       var childrenWithProps = React.Children.map(children, (child) => {
-          return React.cloneElement(child, {onClick: this.show.bind(this)});
+          return React.cloneElement(child, {onClick: this.showMenu.bind(this)});
       });
 
-      return <div>{childrenWithProps}{this.state.visible && menu}</div>;
+      return <ClickOutHandler onClickOut={this.handleClickOutside.bind(this)}>{childrenWithProps}{this.state.menuVisible && menu}</ClickOutHandler>;
     }
 }
 
