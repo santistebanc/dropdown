@@ -1,6 +1,6 @@
 import React from 'react';
 import Menu from './Menu.jsx';
-import MenuItem from './MenuItem.jsx';
+import MenuOfSelectedItem from './MenuOfSelectedItem.jsx';
 
 class MenuOfSelected extends React.Component {
   constructor(props) {
@@ -9,10 +9,14 @@ class MenuOfSelected extends React.Component {
   render() {
     //onOpen and onClose should not be passed onward through ...other
     var { data, ...other } = this.props;
-
-    if(data && data.items && data.items.length>0){
-      return (<ul>{data.items.map((item,index) => {
-          return <MenuItem key={index} data={item} {...other} />;
+    let style_menu = {};
+    let maxHeight = data.menuOfSelectedMaxHeight;
+    if(maxHeight){
+      style_menu.maxHeight = maxHeight;
+    }
+    if(data && data.selectedItems && data.selectedItems.length>0){
+      return (<ul style={style_menu}>{data.selectedItems.map((item,index) => {
+          return <MenuOfSelectedItem key={index} itemdata={item} {...other} />;
       })}</ul>);
     }else{
         return <p className={"empty-label"}>...</p>;

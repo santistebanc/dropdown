@@ -1,15 +1,20 @@
 import React from 'react';
 import Icon from './Icon.jsx';
-import DropDown from './DropDown.jsx';
+import FloatRightIcon from './FloatRightIcon.jsx';
 
 class MenuItem extends React.Component {
   constructor(props) {
     super(props);
   }
+  handleOnClick(){
+    this.props.onChooseItem && this.props.onChooseItem(this.props.itemdata);
+  }
   render() {
+    var { itemdata, itemCustomContent } = this.props;
 
-    var { data, onChooseItem, ...other } = this.props;
-    return <li onClick={onChooseItem}><span className={data.selected && "menu-light"}><Icon name={data.icon}/>{data.title}</span></li>;
+    var content = itemCustomContent && itemCustomContent(itemdata) || <span className={itemdata.selected && "menu-light"}><Icon name={itemdata.icon}/>{itemdata.title}<FloatRightIcon name={itemdata.selected?"remove":""} /></span>;
+
+    return <li onClick={this.handleOnClick.bind(this)}>{content}</li>;
 
   }
 }

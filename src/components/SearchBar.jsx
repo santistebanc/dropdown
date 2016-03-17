@@ -1,8 +1,10 @@
 import React from 'react';
 import SearchFunction from './SearchFunction.js';
 import Menu from './Menu.jsx';
+import Icon from './Icon.jsx';
+import FloatRightIcon from './FloatRightIcon.jsx';
 
-class SearchBar extends React.Component {
+export default class SearchBar extends React.Component {
   constructor(props) {
     super(props);
     this.state = {menuVisible: false, searchResults:[]};
@@ -59,31 +61,47 @@ class SearchBar extends React.Component {
     let resultsObject = {};
     resultsObject.items = search_output;
     this.setState({searchResults:resultsObject});
-    // res.customItem = function(item){
-    //   let path_output = [];
-    //     item.path.forEach((it,idx)=>{
-    //       var slot = [icon(it.icon),it.title,icon("caret-right")];
-    //       path_output.push(...slot);
-    //     });
-    //     let formated_title = formatText(item.title,item.mark_pos,value.length);
-    //     let item_output = [icon(item.icon),formated_title];
-    //   return <a><span className="menu-light">{path_output}</span>{item_output}</a>;
-    // };
+    this.customItem = function(itemdata){
+      let path_output = [];
+        itemdata.path.forEach((it,idx)=>{
+          var slot = <span key={idx}><Icon name={it.icon}/>{it.title}<Icon name="caret-right"/></span>;
+          path_output.push(slot);
+        });
+        let formated_title = formatText(itemdata.title,itemdata.mark_pos,value.length);
+        let item_output = <span className={itemdata.selected && "menu-light"}><Icon name={itemdata.icon}/>{formated_title}<FloatRightIcon name={itemdata.selected?"remove":""} /></span>;
+      return <span><span className="menu-light">{path_output}</span>{item_output}</span>;
+    };
   }
   render(){
     //data has to appear here so that it is not passed with ...other
-    var { data, placeholder, autoFocus, ...other } = this.props;
-
+    var { data, placeholder, autoFocus, itemCustomContent, ...other } = this.props;
+    let searchdata = this.state.searchResults;
     let style_wrapper = {};
     style_wrapper.border = this.state.focused && "3px solid #73AD21";
 
     return(
       <div style={style_wrapper} onClick={this.handleClickInside.bind(this)}>
         <input type="text" value={this.state.value} placeholder={placeholder} autoFocus={autoFocus} onChange={this.handleChangeText.bind(this)} onFocus={this.handleFocusBar.bind(this)} onBlur={this.handleBlurBar.bind(this)}/>
-        {this.state.menuVisible && this.state.focused && <Menu data={this.state.searchResults} onClose={this.hideMenu.bind(this)} {...other} />}
+        {this.state.menuVisible && this.state.focused && <Menu data={data} itemdata={searchdata} onClose={this.hideMenu.bind(this)} itemCustomContent={this.customItem} {...other} />}
       </div>
     );
   }
 }
 
-export default SearchBar;
+function formatText(string,positions,size){
+  let result = [];
+  let start = 0;
+  let pos = 0;
+
+  for(let i=0;i<positions.length;i++){
+    let first = string.slice(start,positions[i]);
+    let second = <b>{string.substr(positions[i],size)}</b>;
+    let third = string.slice(positions[i]+size);
+    result.push([first,second]);
+    start = positions[i]+size;
+    if(i == positions.length-1){
+      result.push(third);
+    }
+  }
+  return result;
+}

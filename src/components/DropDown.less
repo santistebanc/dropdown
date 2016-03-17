@@ -7,9 +7,6 @@
   cursor: default;
   .default-font;
   background-color: @menu-background-color;
-  min-width: 70px;
-  max-height: 600px;
-  max-width: 300px;
 
   padding: 5px 0;
   margin: 2px 0 0;
@@ -60,9 +57,7 @@
 .menu-tag {
   z-index: 1000;
   display: inline-block;
-  min-width: 100px;
-  max-width: 250px;
-  position: absolute;
+  position: fixed;
   #menu-style;
 
   .empty-label{
@@ -71,7 +66,7 @@
   .menu-light{
     color: @disabled-text-color;
   }
-  .dd-caret{
+  .float-right{
     float:right;
     margin-left: 5px;
   }
@@ -84,8 +79,8 @@
     #searchbar-style
   }
   ul{
+    display: block;
     overflow: auto;
-    max-height: 200px;
     li{
       display: inline-block;
       width:100%;

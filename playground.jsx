@@ -7,13 +7,18 @@ let mock = {
   "config":[],
   "emptyLabel":"no items found",
   "width":"200px",
-  "items":[{"title":"colors","id":"colors","icon":"paint-brush","items":[
+  //"searchMenuWidth":"150px",
+  "searchMenuMaxHeight":"150px",
+  "optionsMaxHeight":"200px",
+  "menuOfSelectedMaxHeight":"100px",
+  "selectedItems":[],
+  "items":[{"title":"colors","id":"colors","icon":"paint-brush","optionsMaxHeight":"200px","items":[
     {"title":"red","id":"color_red"},
     {"title":"blue","id":"color_blue"},
     {"title":"yellow","id":"color_yellow"},
-    {"title":"green","id":"color_green","items":[{"title":"lime","id":"color_green_lime"},{"title":"leaf","id":"color_green_leaf"},{"title":"mint","id":"color_green_mint"}]}
+    {"title":"green","id":"color_green","optionsMaxHeight":"200px","items":[{"title":"lime","id":"color_green_lime"},{"title":"leaf","id":"color_green_leaf"},{"title":"mint","id":"color_green_mint"}]}
     ]},
-    {"title":"countries","id":"countries","icon":"globe","items":[
+    {"title":"countries","id":"countries","icon":"globe","optionsMaxHeight":"200px","items":[
       {"title":"germany","id":"country_germany"},
       {"title":"france","id":"country_france"},
       {"title":"usa","id":"country_usa"},
@@ -23,7 +28,7 @@ let mock = {
 
 
 let searchbarprops = {placeholder:"search...", autoFocus:true};
-
+let selectableprops = {menuofselected:true};
 
 
 var Index = React.createClass({
@@ -37,7 +42,7 @@ var Index = React.createClass({
                 <h1>MultiDropDown</h1>
                 <br / >
                 <br / >
-                  <DropDown data={mock} selectable searchbar={searchbarprops}><button>Button</button></DropDown>
+                  <DropDown data={mock} selectable={selectableprops} searchbar={searchbarprops}><button>Button</button></DropDown>
                 <br / >
                 <br / >
             </div>

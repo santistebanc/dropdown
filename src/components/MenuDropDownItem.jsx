@@ -1,6 +1,6 @@
 import React from 'react';
 import Icon from './Icon.jsx';
-import DropDownCaretIcon from './DropDownCaretIcon.jsx';
+import FloatRightIcon from './FloatRightIcon.jsx';
 import Menu from './Menu.jsx';
 //tried to make it extend DropDown but there is an issue with circular dependencies and Babel
 
@@ -33,10 +33,9 @@ class MenuDropDownItem extends React.Component {
     this.setState({menuVisible:nextProps.menuVisible===undefined?false:nextProps.menuVisible});
   }
   render() {
-    var {data, menuVisible, ...other } = this.props;
-
-    let menu = <Menu data={data} onClose={this.handleCloseMenu.bind(this)} {...other} />;
-    return <li onClick={this.handleOnClick.bind(this)}><Icon name={data.icon}/>{data.title}<DropDownCaretIcon />{this.state.menuVisible && menu}</li>;
+    var {data, itemdata, menuVisible, ...other } = this.props;
+    let menu = <Menu data={data} itemdata={itemdata} onClose={this.handleCloseMenu.bind(this)} {...other} />;
+    return <li onClick={this.handleOnClick.bind(this)}><Icon name={itemdata.icon}/>{itemdata.title}<FloatRightIcon name="caret-right" />{this.state.menuVisible && menu}</li>;
 
   }
 }

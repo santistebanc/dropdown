@@ -1,14 +1,14 @@
 import React from 'react';
 import Icon from './Icon.jsx';
 
-class DropDownCaretIcon extends Icon {
+class FloatRightIcon extends Icon {
   constructor(props) {
     super(props);
   }
   render() {
-    const iconcss = "dd-caret fa fa-caret-right";
+    const iconcss = "float-right fa fa-" + this.props.name;
     return <i className={iconcss}/>;
   }
 }
 
-export default DropDownCaretIcon;
+export default FloatRightIcon;
