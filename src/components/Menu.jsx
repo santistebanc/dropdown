@@ -8,7 +8,7 @@ import GetDimensionsOfElement from './GetDimensionsOfElement';
 var $ = require('jquery');
 var ResizeSensor = require('css-element-queries/src/ResizeSensor');
 
-export default class Menu extends React.Component {
+var Menu = class Menu extends React.Component {
   constructor(props) {
     super(props);
     this.state = {focused:true, selectedIndex:-1};
@@ -20,13 +20,12 @@ export default class Menu extends React.Component {
     let thedata = itemdata || data
     var element = this.refs.menudiv;
     new ResizeSensor(element, ()=>{
-    console.log('Changed to ' + element.clientWidth,thedata.title);
     this.updatePosition();
     });
     this.updatePosition();
   }
   updatePosition(){
-    var {el, data, itemdata} = this.props;
+    var {el, data, itemdata, dropdownPos} = this.props;
     let thedata = itemdata || data
 
     let menu = ReactDom.findDOMNode(this.refs.menudiv);
@@ -36,18 +35,62 @@ export default class Menu extends React.Component {
     let dim_parent = GetDimensionsOfElement(dim.rparent);
     let dim_window = GetDimensionsOfElement(window);
 
+    //changes the position of the menu depending on if it goes off the screen
+    let pos = dropdownPos || thedata.dropdownPosition || 'right';
 
-    if(dim_parent.y+dim_el.ry+dim.h > dim_window.h){
-      var ypos = dim_el.ry+dim_el.h-dim.h;
-    }else{
-      var ypos = dim_el.ry;
+    let v_limity_low = (dim_parent.y+dim_el.ry-dim.h)<=0;
+    let v_limity_high = (dim_parent.y+dim_el.ry+dim_el.h+dim.h)>=dim_window.h;
+    let h_limity_low = (dim_parent.y+dim_el.ry+dim_el.h-dim.h)<=0;
+    let h_limity_high = (dim_parent.y+dim_el.ry+dim.h)>=dim_window.h;
+
+    let v_limitx_low = (dim_parent.x+dim_el.rx+dim_el.w-dim.w)<=0;
+    let v_limitx_high = (dim_parent.x+dim_el.rx+dim.w)>=dim_window.w;
+    let h_limitx_low = (dim_parent.x+dim_el.rx-dim.w)<=0;
+    let h_limitx_high = (dim_parent.x+dim_el.rx+dim_el.w+dim.w)>=dim_window.w;
+
+
+      switch(pos){
+        case 'bottom':
+          var def = {x:dim_el.rx, y:dim_el.ry+dim_el.h};
+          var maxbreak = {x:v_limitx_high, y:v_limity_high};
+          var minbreak = {x:v_limitx_low, y:v_limity_low};
+          var alter = {x:dim_el.rx+dim_el.w-dim.w, y:dim_el.ry-dim.h};
+          break;
+        case 'top':
+          var def = {x:dim_el.rx, y:dim_el.ry-dim.h};
+          var maxbreak = {x:v_limitx_high, y:v_limity_low};
+          var minbreak = {x:v_limitx_low, y:v_limity_high};
+          var alter = {x:dim_el.rx+dim_el.w-dim.w, y:dim_el.ry+dim_el.h};
+          break;
+        case 'right':
+          var def = {x:dim_el.rx+dim_el.w, y:dim_el.ry};
+          var maxbreak = {x:h_limitx_high, y:h_limity_high};
+          var minbreak = {x:h_limitx_low, y:h_limity_low};
+          var alter = {x:dim_el.rx-dim.w, y:dim_el.ry+dim_el.h-dim.h};
+          break;
+        case 'left':
+          var def = {x:dim_el.rx-dim_el.w, y:dim_el.ry};
+          var maxbreak = {x:h_limitx_low, y:h_limity_high};
+          var minbreak = {x:h_limitx_high, y:h_limity_low};
+          var alter = {x:dim_el.rx+dim_el.w, y:dim_el.ry+dim_el.h-dim.h};
+          break;
+        }
+
+    if(!maxbreak.x){
+      var xpos = def.x;
+    }else if(!minbreak.x){
+      var xpos = alter.x;
+    }else {
+      var xpos = def.x;
+    }
+    if(!maxbreak.y){
+      var ypos = def.y;
+    }else if(!minbreak.y){
+      var ypos = alter.y;
+    }else {
+      var ypos = def.y;
     }
 
-    if(dim_parent.x+dim_el.rx+dim_el.w+dim.w > dim_window.w){
-      var xpos = dim_el.rx-dim.w;
-    }else{
-      var xpos = dim_el.rx+dim_el.w;
-    }
       this.setState({positionMenu:{x:xpos,y:ypos}});
     this.forceUpdate();
   }
@@ -87,6 +130,7 @@ export default class Menu extends React.Component {
       }
       this.forceUpdate();
     }
+        this.updatePosition();
   }
   blur() {
     this.setState({focused:false});
@@ -107,10 +151,8 @@ export default class Menu extends React.Component {
     }else if(thedata.width){
       style_wrapper.width = thedata.width;
     }else if(this.minWidth){
-      console.log("here",this.minWidth);
       style_wrapper.width = this.minWidth;
     }
-    console.log("position",thedata.title,this.state.positionMenu);
     if(this.state.positionMenu){
       style_wrapper.left = this.state.positionMenu.x;
       style_wrapper.top = this.state.positionMenu.y;
@@ -152,7 +194,7 @@ export default class Menu extends React.Component {
     }else if(thedata.optionsMaxHeight){
       style_menu.maxHeight = thedata.optionsMaxHeight;
     }
-      if(thedata && thedata.items){
+      if(thedata && thedata.items && thedata.items.length>0){
         return(<ul style={style_menu}>{thedata.items.map((item,index) => {
           if(item.items){
             let menu_is_visible = this.state.selectedIndex==index;
@@ -168,7 +210,8 @@ export default class Menu extends React.Component {
   }
 }
 
-
 Menu.defaultProps = {
   emptyLabel:"no data..."
 };
+
+export default Menu;

@@ -3,6 +3,34 @@
 @menu-background-color: #fff;
 @disabled-text-color: #888;
 
+@keyframes dropdown-in {
+    0% {
+        display: none;
+        opacity: 0
+    }
+    1% {
+        display: block;
+        opacity: 0;
+        -webkit-transform: scale(0.8);
+        transform: scale(0.8)
+    }
+    100% {
+        opacity: 1;
+        -webkit-transform: scale(1);
+        transform: scale(1)
+    }
+}
+
+.show-in {
+    -webkit-animation:dropdown-in ease-in 1;  /* call our keyframe named fadeIn, use animattion ease-in and repeat it only 1 time */
+    -moz-animation:dropdown-in ease-in 1;
+    animation:dropdown-in ease-in 1;
+
+    -webkit-animation-duration:0.08s;
+    -moz-animation-duration:0.08s;
+    animation-duration:0.08s;
+}
+
 #menu-style{
   cursor: default;
   .default-font;
@@ -14,6 +42,10 @@
   border: 1px solid #fff;
   border-radius: 2px;
   box-shadow: 1px 1px 4px #b3b3b3;
+
+  .show-in;
+
+
 }
 #title-style{
   padding: 0 5px;

@@ -87,7 +87,7 @@ export default class SearchBar extends React.Component {
     return(
       <div style={style_wrapper} onClick={this.handleClickInside.bind(this)}>
         <input ref={this.findDimensions.bind(this)} type="text" value={this.state.value} placeholder={placeholder} autoFocus={autoFocus} onChange={this.handleChangeText.bind(this)} onFocus={this.handleFocusBar.bind(this)} onBlur={this.handleBlurBar.bind(this)}/>
-        {this.state.menuVisible && this.state.focused && <Menu el={this.el} data={data} itemdata={searchdata} onClose={this.hideMenu.bind(this)} itemCustomContent={this.customItem} {...other} />}
+        {this.state.menuVisible && this.state.focused && <Menu el={this.el} data={data} dropdownPos={'bottom'} itemdata={searchdata} onClose={this.hideMenu.bind(this)} itemCustomContent={this.customItem} {...other} />}
       </div>
     );
   }

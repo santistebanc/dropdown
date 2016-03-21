@@ -2,9 +2,10 @@ import React from 'react';
 import Menu from './Menu.jsx';
 import SearchMenuItem from './SearchMenuItem.jsx';
 
-export default class SearchMenu extends Menu{
+var SearchMenu = class SearchMenu extends Menu{
   constructor(props) {
     super(props);
+    console.log("thedata.items");
   }
   render() {
     var { width } = this.props;
@@ -16,6 +17,7 @@ export default class SearchMenu extends Menu{
             </div>);
   }
   renderItems(){
+    console.log("thedata.items",thedata.items);
     //onOpen and onClose should not be passed onward through ...other
     var { data, itemdata, searchbar, selectable, selectedItems, width, height, onOpen, onClose, ...other } = this.props;
     let style_menu = {height:height};
@@ -33,3 +35,5 @@ export default class SearchMenu extends Menu{
 SearchMenu.defaultProps = {
   emptyLabel:"no hits"
 };
+
+export default SearchMenu;

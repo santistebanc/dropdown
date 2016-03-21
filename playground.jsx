@@ -3,8 +3,7 @@ import ReactDOM from 'react-dom';
 import DropDown from './src/components/DropDown.jsx';
 
 let mock = {
-  "title":"My drop-down menu",
-  "config":[],
+  "title":"My drop-down menu with maybe a very long title",
   "emptyLabel":"no items found",
   "width":150,
   "dropdownPosition":'bottom',
