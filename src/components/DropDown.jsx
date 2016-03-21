@@ -1,5 +1,6 @@
 import React from 'react';
 import Menu from './Menu.jsx';
+import GetDimensionsOfElement from './GetDimensionsOfElement';
 
 require('./DropDown.less');
 
@@ -19,16 +20,28 @@ class DropDown extends React.Component {
     handleClickOutside(evt) {
       this.hideMenu();
     }
+    findDimensions(input){
+        if (input != null) {
+          this.el = input;
+          let dim = GetDimensionsOfElement(input);
+          let dimwindow = GetDimensionsOfElement(window);
+          let menuwidth = this.props.data.width || 70;
+          if(dim.x+dim.w+menuwidth > dimwindow.w){
+            this.positionMenu = {x:dim.x-menuwidth,y:dim.y};
+          }else{
+            this.positionMenu = {x:dim.x+dim.w,y:dim.y};
+          }
+        }
+    }
     render() {
 
       var { children, async, onClose, ...other } = this.props;
 
-      let menu = <Menu onClose={this.hideMenu.bind(this)} {...other} />;
-
       //transforms whichever child elements to become clickable
       var childrenWithProps = React.Children.map(children, (child) => {
-          return React.cloneElement(child, {onClick: this.showMenu.bind(this)});
+          return React.cloneElement(child, {onClick: this.showMenu.bind(this), ref:this.findDimensions.bind(this)});
       });
+      let menu = <Menu el={this.el} onClose={this.hideMenu.bind(this)} {...other} />;
 
       return <ClickOutHandler onClickOut={this.handleClickOutside.bind(this)}>{childrenWithProps}{this.state.menuVisible && menu}</ClickOutHandler>;
     }

@@ -50,7 +50,7 @@ export default class SearchBar extends React.Component {
     }
   }
   handleBlurBar(event){
-    //this.blur();
+    //nothing to do yet
   }
   handleClickInside(event){
     event.stopPropagation();
@@ -69,20 +69,25 @@ export default class SearchBar extends React.Component {
         });
         let formated_title = formatText(itemdata.title,itemdata.mark_pos,value.length);
         let item_output = <span className={itemdata.selected && "menu-light"}><Icon name={itemdata.icon}/>{formated_title}<FloatRightIcon name={itemdata.selected?"remove":""} /></span>;
-      return <span><span className="menu-light">{path_output}</span>{item_output}</span>;
+      return <div><span className="menu-light">{path_output}</span>{item_output}</div>;
     };
+  }
+  findDimensions(input){
+      if (input != null) {
+        this.el = input;
+      }
   }
   render(){
     //data has to appear here so that it is not passed with ...other
     var { data, placeholder, autoFocus, itemCustomContent, ...other } = this.props;
     let searchdata = this.state.searchResults;
     let style_wrapper = {};
-    style_wrapper.border = this.state.focused && "3px solid #73AD21";
+    //style_wrapper.border = this.state.focused && "3px solid #73AD21";
 
     return(
       <div style={style_wrapper} onClick={this.handleClickInside.bind(this)}>
-        <input type="text" value={this.state.value} placeholder={placeholder} autoFocus={autoFocus} onChange={this.handleChangeText.bind(this)} onFocus={this.handleFocusBar.bind(this)} onBlur={this.handleBlurBar.bind(this)}/>
-        {this.state.menuVisible && this.state.focused && <Menu data={data} itemdata={searchdata} onClose={this.hideMenu.bind(this)} itemCustomContent={this.customItem} {...other} />}
+        <input ref={this.findDimensions.bind(this)} type="text" value={this.state.value} placeholder={placeholder} autoFocus={autoFocus} onChange={this.handleChangeText.bind(this)} onFocus={this.handleFocusBar.bind(this)} onBlur={this.handleBlurBar.bind(this)}/>
+        {this.state.menuVisible && this.state.focused && <Menu el={this.el} data={data} itemdata={searchdata} onClose={this.hideMenu.bind(this)} itemCustomContent={this.customItem} {...other} />}
       </div>
     );
   }

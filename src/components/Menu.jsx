@@ -1,13 +1,55 @@
 import React from 'react';
+import ReactDom from 'react-dom';
 import MenuItem from './MenuItem.jsx';
-import MenuDropDownItem from './MenuDropDownItem.jsx'
+import MenuDropDownItem from './MenuDropDownItem.jsx';
 import SearchBar from './SearchBar.jsx';
-import MenuOfSelected from './MenuOfSelected.jsx'
+import MenuOfSelected from './MenuOfSelected.jsx';
+import GetDimensionsOfElement from './GetDimensionsOfElement';
+var $ = require('jquery');
+var ResizeSensor = require('css-element-queries/src/ResizeSensor');
 
 export default class Menu extends React.Component {
   constructor(props) {
     super(props);
     this.state = {focused:true, selectedIndex:-1};
+
+  }
+  componentDidMount(){
+    let menu = ReactDom.findDOMNode(this.refs.menudiv);
+    var {data, itemdata} = this.props;
+    let thedata = itemdata || data
+    var element = this.refs.menudiv;
+    new ResizeSensor(element, ()=>{
+    console.log('Changed to ' + element.clientWidth,thedata.title);
+    this.updatePosition();
+    });
+    this.updatePosition();
+  }
+  updatePosition(){
+    var {el, data, itemdata} = this.props;
+    let thedata = itemdata || data
+
+    let menu = ReactDom.findDOMNode(this.refs.menudiv);
+
+    let dim = GetDimensionsOfElement(menu,true);
+    let dim_el = GetDimensionsOfElement(el,true);
+    let dim_parent = GetDimensionsOfElement(dim.rparent);
+    let dim_window = GetDimensionsOfElement(window);
+
+
+    if(dim_parent.y+dim_el.ry+dim.h > dim_window.h){
+      var ypos = dim_el.ry+dim_el.h-dim.h;
+    }else{
+      var ypos = dim_el.ry;
+    }
+
+    if(dim_parent.x+dim_el.rx+dim_el.w+dim.w > dim_window.w){
+      var xpos = dim_el.rx-dim.w;
+    }else{
+      var xpos = dim_el.rx+dim_el.w;
+    }
+      this.setState({positionMenu:{x:xpos,y:ypos}});
+    this.forceUpdate();
   }
   handleOpenSubMenu(index){
     this.setState({selectedIndex:index});
@@ -57,18 +99,25 @@ export default class Menu extends React.Component {
     this.props.onClose && this.props.onClose();
   }
   render() {
-    var { data, itemdata, menuMaxHeight, menuWidth } = this.props;
+    var { data, pos, itemdata, menuMaxHeight, menuWidth } = this.props;
     let thedata = itemdata || data;
     let style_wrapper = {};
-    if(thedata.width){
-      style_wrapper.width = thedata.width;
-    }
     if(menuWidth){
       style_wrapper.width = menuWidth;
+    }else if(thedata.width){
+      style_wrapper.width = thedata.width;
+    }else if(this.minWidth){
+      console.log("here",this.minWidth);
+      style_wrapper.width = this.minWidth;
     }
-    style_wrapper.border = this.state.focused && "3px solid #73AD21";
+    console.log("position",thedata.title,this.state.positionMenu);
+    if(this.state.positionMenu){
+      style_wrapper.left = this.state.positionMenu.x;
+      style_wrapper.top = this.state.positionMenu.y;
+    }
+    //style_wrapper.border = this.state.focused && "3px solid #73AD21";
 
-    return (<div style={style_wrapper} className={"menu-tag"} onClick={this.handleClickInside.bind(this)}>
+    return (<div ref={"menudiv"} style={style_wrapper} className={"menu-tag"} onClick={this.handleClickInside.bind(this)}>
               {this.renderTitle()}
               {this.renderMenuOfSelected()}
               {this.renderSearchbar()}
@@ -118,6 +167,7 @@ export default class Menu extends React.Component {
       }
   }
 }
+
 
 Menu.defaultProps = {
   emptyLabel:"no data..."

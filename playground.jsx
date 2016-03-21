@@ -6,20 +6,21 @@ let mock = {
   "title":"My drop-down menu",
   "config":[],
   "emptyLabel":"no items found",
-  "width":"200px",
-  //"searchMenuWidth":"150px",
-  "searchMenuMaxHeight":"150px",
-  "optionsMaxHeight":"200px",
-  "menuOfSelectedMaxHeight":"100px",
+  "width":150,
+  "dropdownPosition":'bottom',
+  "searchMenuWidth":150,
+  "searchMenuMaxHeight":150,
+  "optionsMaxHeight":200,
+  "menuOfSelectedMaxHeight":100,
   "selectedItems":[],
-  "items":[{"title":"colors","id":"colors","icon":"paint-brush","optionsMaxHeight":"200px","items":[
+  "items":[{"title":"colors","id":"colors","icon":"paint-brush","optionsMaxHeight":200,"width":100,"items":[
     {"title":"red","id":"color_red"},
     {"title":"blue","id":"color_blue"},
     {"title":"yellow","id":"color_yellow"},
-    {"title":"green","id":"color_green","optionsMaxHeight":"200px","items":[{"title":"lime","id":"color_green_lime"},{"title":"leaf","id":"color_green_leaf"},{"title":"mint","id":"color_green_mint"}]}
+    {"title":"green","id":"color_green","optionsMaxHeight":200,"width":70,"items":[{"title":"lime","id":"color_green_lime"},{"title":"leaf","id":"color_green_leaf"},{"title":"mint","id":"color_green_mint"}]}
     ]},
-    {"title":"countries","id":"countries","icon":"globe","optionsMaxHeight":"200px","items":[
-      {"title":"germany","id":"country_germany"},
+    {"title":"countries","id":"countries","icon":"globe","optionsMaxHeight":200,"width":100,"items":[
+      {"title":"germany with many other words","id":"country_germany"},
       {"title":"france","id":"country_france"},
       {"title":"usa","id":"country_usa"},
       {"title":"italy","id":"country_italy"}
@@ -42,10 +43,23 @@ var Index = React.createClass({
                 <h1>MultiDropDown</h1>
                 <br / >
                 <br / >
-                  <DropDown data={mock} selectable={selectableprops} searchbar={searchbarprops}><button>Button</button></DropDown>
+                  <div style={{width:'10%', margin:'auto', float:'right'}}><DropDown data={mock} selectable={selectableprops} searchbar={searchbarprops}><button>Button</button></DropDown></div>
+                  <div style={{width:'10%', marginLeft:'200px', float:'left'}}><DropDown data={mock} selectable={selectableprops} searchbar={searchbarprops}><button>Button</button></DropDown></div>
                 <br / >
+                  <div style={{marginRight:'50px', float:'right'}}><DropDown data={mock} selectable={selectableprops} searchbar={searchbarprops}><button>Button</button></DropDown></div>
                 <br / >
-            </div>
+                  <br / >
+                    <br / >
+                      <br / >
+                        <br / >
+                          <br / >
+                            <br / >
+                              <br / >
+                                <br / >
+                                  <br / >
+                                    <div style={{width:'10%', margin:'auto', float:'right'}}><DropDown data={mock} selectable={selectableprops} searchbar={searchbarprops}><button>Button</button></DropDown></div>
+                                    <div style={{width:'10%', marginLeft:'200px', float:'left'}}><DropDown data={mock} selectable={selectableprops} searchbar={searchbarprops}><button>Button</button></DropDown></div>
+                                  </div>
         );
     }
 });

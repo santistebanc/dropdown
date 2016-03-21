@@ -2,6 +2,7 @@
   "dependencies": {
     "babel-plugin-transform-object-rest-spread": "^6.6.5",
     "babel-polyfill": "^6.0.0",
+    "css-element-queries": "^0.3.2",
     "css-loader": "0.9.1",
     "express": "^4.13.3",
     "jquery": "^2.2.1",
