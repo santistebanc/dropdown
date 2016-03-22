@@ -46,18 +46,9 @@ var Index = React.createClass({
                   <div style={{width:'10%', marginLeft:'200px', float:'left'}}><DropDown data={mock} selectable={selectableprops} searchbar={searchbarprops}><button>Button</button></DropDown></div>
                 <br / >
                   <div style={{marginRight:'50px', float:'right'}}><DropDown data={mock} selectable={selectableprops} searchbar={searchbarprops}><button>Button</button></DropDown></div>
-                <br / >
-                  <br / >
-                    <br / >
-                      <br / >
-                        <br / >
-                          <br / >
-                            <br / >
-                              <br / >
-                                <br / >
-                                  <br / >
-                                    <div style={{width:'10%', margin:'auto', float:'right'}}><DropDown data={mock} selectable={selectableprops} searchbar={searchbarprops}><button>Button</button></DropDown></div>
-                                    <div style={{width:'10%', marginLeft:'200px', float:'left'}}><DropDown data={mock} selectable={selectableprops} searchbar={searchbarprops}><button>Button</button></DropDown></div>
+                <div style={{height:'200px'}}></div>
+                                    <div style={{marginRight:'50px', float:'right'}}><DropDown data={mock} selectable={selectableprops} searchbar={searchbarprops}><button>Button</button></DropDown></div>
+                                    <div style={{width:'5%', marginLeft:'200px', float:'left'}}><DropDown data={mock} selectable={selectableprops} searchbar={searchbarprops}><button>Button</button></DropDown></div>
                                   </div>
         );
     }

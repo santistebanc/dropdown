@@ -17,6 +17,9 @@ class DropDown extends React.Component {
     hideMenu() {
       this.setState({menuVisible:false});
     }
+    handleClickElement(evt) {
+      this.setState({menuVisible:!this.state.menuVisible});
+    }
     handleClickOutside(evt) {
       this.hideMenu();
     }
@@ -39,7 +42,7 @@ class DropDown extends React.Component {
 
       //transforms whichever child elements to become clickable
       var childrenWithProps = React.Children.map(children, (child) => {
-          return React.cloneElement(child, {onClick: this.showMenu.bind(this), ref:this.findDimensions.bind(this)});
+          return React.cloneElement(child, {onClick: this.handleClickElement.bind(this), ref:this.findDimensions.bind(this)});
       });
       let menu = <Menu el={this.el} onClose={this.hideMenu.bind(this)} {...other} />;
 

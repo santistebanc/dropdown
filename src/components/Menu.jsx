@@ -5,14 +5,15 @@ import MenuDropDownItem from './MenuDropDownItem.jsx';
 import SearchBar from './SearchBar.jsx';
 import MenuOfSelected from './MenuOfSelected.jsx';
 import GetDimensionsOfElement from './GetDimensionsOfElement';
-var $ = require('jquery');
 var ResizeSensor = require('css-element-queries/src/ResizeSensor');
+require("keymaster/keymaster");
+//key('a', function(){ alert('you pressed a!') });
 
 var Menu = class Menu extends React.Component {
   constructor(props) {
     super(props);
     this.state = {focused:true, selectedIndex:-1};
-
+    this.changedPos = false; //variable used to force update in submenus
   }
   componentDidMount(){
     let menu = ReactDom.findDOMNode(this.refs.menudiv);
@@ -23,6 +24,11 @@ var Menu = class Menu extends React.Component {
     this.updatePosition();
     });
     this.updatePosition();
+  }
+  componentWillReceiveProps(nextProps) {
+    if(nextProps.updatepos){
+      this.updatePosition();
+    }
   }
   updatePosition(){
     var {el, data, itemdata, dropdownPos} = this.props;
@@ -90,9 +96,8 @@ var Menu = class Menu extends React.Component {
     }else {
       var ypos = def.y;
     }
-
       this.setState({positionMenu:{x:xpos,y:ypos}});
-    this.forceUpdate();
+    this.changedPos = true;
   }
   handleOpenSubMenu(index){
     this.setState({selectedIndex:index});
@@ -130,7 +135,6 @@ var Menu = class Menu extends React.Component {
       }
       this.forceUpdate();
     }
-        this.updatePosition();
   }
   blur() {
     this.setState({focused:false});
@@ -182,13 +186,14 @@ var Menu = class Menu extends React.Component {
     let submenu_selectable = {...selectable, menuofselected:false}; //prevent submenu from having a menuofselected
     let maxHeight = data.searchMenuMaxHeight;
     let width = data.searchMenuWidth;
-    return searchbar && <SearchBar menuWidth={width} menuMaxHeight={maxHeight} focused={searchbar_is_active} data={data} selectable={submenu_selectable} onChooseItem={this.handleChooseItem.bind(this)} onOpen={this.handleOpenSearchMenu.bind(this)} onClose={this.handleCloseSearchMenu.bind(this)} {...searchbar}/>;
+    return searchbar && <SearchBar updatepos={this.changedPos} menuWidth={width} menuMaxHeight={maxHeight} focused={searchbar_is_active} data={data} selectable={submenu_selectable} onChooseItem={this.handleChooseItem.bind(this)} onOpen={this.handleOpenSearchMenu.bind(this)} onClose={this.handleCloseSearchMenu.bind(this)} {...searchbar}/>;
   }
   renderItems(){
     //onOpen and onClose should not be passed onward through ...other
     var { data, itemdata, searchbar, selectable, selectedItems, onOpen, onClose, menuMaxHeight, ...other } = this.props;
     let thedata = itemdata || data;
     let style_menu = {};
+
     if(menuMaxHeight){
       style_menu.maxHeight = menuMaxHeight;
     }else if(thedata.optionsMaxHeight){
@@ -199,7 +204,7 @@ var Menu = class Menu extends React.Component {
           if(item.items){
             let menu_is_visible = this.state.selectedIndex==index;
             let submenu_selectable = {...selectable, menuofselected:false}; //prevent submenu from having a menuofselected
-            return <MenuDropDownItem key={index} data={data} itemdata={item} selectable={submenu_selectable} onChooseItem={this.handleChooseItem.bind(this)} menuVisible={menu_is_visible} onClose={this.handleCloseSubMenu.bind(this,index)} onOpen={this.handleOpenSubMenu.bind(this,index)} {...other} />;
+            return <MenuDropDownItem key={index} data={data} itemdata={item} updatepos={this.changedPos} selectable={submenu_selectable} onChooseItem={this.handleChooseItem.bind(this)} menuVisible={menu_is_visible} onClose={this.handleCloseSubMenu.bind(this,index)} onOpen={this.handleOpenSubMenu.bind(this,index)} {...other} />;
           }else{
             return <MenuItem key={index} itemdata={item} onChooseItem={this.handleChooseItem.bind(this)} {...other} />;
           }
@@ -207,6 +212,7 @@ var Menu = class Menu extends React.Component {
       }else{
           return <p className={"empty-label"}>{this.props.emptyLabel}</p>;
       }
+      this.changedPos = false;
   }
 }
 

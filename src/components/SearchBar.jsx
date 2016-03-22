@@ -64,7 +64,7 @@ export default class SearchBar extends React.Component {
     this.customItem = function(itemdata){
       let path_output = [];
         itemdata.path.forEach((it,idx)=>{
-          var slot = <span key={idx}><Icon name={it.icon}/>{it.title}<Icon name="caret-right"/></span>;
+          var slot = <span key={idx}><Icon name={it.icon}/>{it.title}<span style={{margin:'0 2px'}} ><Icon name="caret-right"/></span></span>;
           path_output.push(slot);
         });
         let formated_title = formatText(itemdata.title,itemdata.mark_pos,value.length);
