@@ -39,9 +39,9 @@ class MenuDropDownItem extends React.Component {
       }
   }
   render() {
-    var {data, el, pos, itemdata, menuVisible, ...other } = this.props;
+    var {data, el, pos, itemdata, menuVisible, highlighted, ...other } = this.props;
     let menu = <Menu el={this.el} data={data} itemdata={itemdata} onClose={this.handleCloseMenu.bind(this)} {...other} />;
-    return <li ref={this.findDimensions.bind(this)} onClick={this.handleOnClick.bind(this)}><div><Icon name={itemdata.icon}/>{itemdata.title}<FloatRightIcon name="caret-right" /></div>{this.state.menuVisible && menu}</li>;
+    return <li ref={this.findDimensions.bind(this)} onClick={this.handleOnClick.bind(this)} className={highlighted && "menu-highlighted"} title={itemdata.hint || itemdata.title}><div><Icon name={itemdata.icon}/>{itemdata.title}<FloatRightIcon name="caret-right" /></div>{this.state.menuVisible && menu}</li>;
 
   }
 }

@@ -10,7 +10,7 @@ class MenuOfSelectedItem extends MenuItem {
   render() {
 
     var { itemdata } = this.props;
-    return <li onClick={this.handleOnClick.bind(this)}><Icon name={itemdata.icon}/>{itemdata.title}<FloatRightIcon name="remove" /></li>;
+    return <li onClick={this.handleOnClick.bind(this)} title={itemdata.hint || itemdata.title}><Icon name={itemdata.icon}/>{itemdata.title}<FloatRightIcon name="remove" /></li>;
 
   }
 }

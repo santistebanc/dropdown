@@ -1,6 +1,7 @@
 import React from 'react';
 import Menu from './Menu.jsx';
 import GetDimensionsOfElement from './GetDimensionsOfElement';
+var Mousetrap = require("mousetrap/mousetrap.js");
 
 require('./DropDown.less');
 
@@ -13,12 +14,20 @@ class DropDown extends React.Component {
     }
     showMenu() {
       this.setState({menuVisible:true});
+      Mousetrap.prototype.stopCallback = function(e, element, combo) {
+        //console.log(element);
+        return false;
+      };
     }
     hideMenu() {
       this.setState({menuVisible:false});
     }
     handleClickElement(evt) {
-      this.setState({menuVisible:!this.state.menuVisible});
+      if(this.state.menuVisible){
+        this.hideMenu();
+      }else{
+        this.showMenu();
+      }
     }
     handleClickOutside(evt) {
       this.hideMenu();
@@ -44,7 +53,7 @@ class DropDown extends React.Component {
       var childrenWithProps = React.Children.map(children, (child) => {
           return React.cloneElement(child, {onClick: this.handleClickElement.bind(this), ref:this.findDimensions.bind(this)});
       });
-      let menu = <Menu el={this.el} onClose={this.hideMenu.bind(this)} {...other} />;
+      let menu = <Menu main el={this.el} onClose={this.hideMenu.bind(this)} {...other} />;
 
       return <ClickOutHandler onClickOut={this.handleClickOutside.bind(this)}>{childrenWithProps}{this.state.menuVisible && menu}</ClickOutHandler>;
     }

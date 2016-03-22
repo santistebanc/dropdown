@@ -6,13 +6,12 @@ import SearchBar from './SearchBar.jsx';
 import MenuOfSelected from './MenuOfSelected.jsx';
 import GetDimensionsOfElement from './GetDimensionsOfElement';
 var ResizeSensor = require('css-element-queries/src/ResizeSensor');
-require("keymaster/keymaster");
-//key('a', function(){ alert('you pressed a!') });
+var Mousetrap = require("mousetrap/mousetrap.js");
 
 var Menu = class Menu extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {focused:true, selectedIndex:-1};
+    this.state = {focused:false, selectedIndex:-1, header: -1};
     this.changedPos = false; //variable used to force update in submenus
   }
   componentDidMount(){
@@ -20,14 +19,28 @@ var Menu = class Menu extends React.Component {
     var {data, itemdata} = this.props;
     let thedata = itemdata || data
     var element = this.refs.menudiv;
+    if(thedata && thedata.items && thedata.items.length>0){
+      this.focus();
+    }
     new ResizeSensor(element, ()=>{
     this.updatePosition();
     });
     this.updatePosition();
   }
+  componentWillUnmount(){
+    if(this.props.main){
+      Mousetrap.unbind(['up','down','left','right','enter']);
+    }
+    Mousetrap.unbind('esc');
+  }
   componentWillReceiveProps(nextProps) {
     if(nextProps.updatepos){
       this.updatePosition();
+    }
+    var {data, itemdata} = nextProps;
+    let thedata = itemdata || data;
+    if(!thedata || !thedata.items || thedata.items.length==0){
+      this.blur();
     }
   }
   updatePosition(){
@@ -100,8 +113,8 @@ var Menu = class Menu extends React.Component {
     this.changedPos = true;
   }
   handleOpenSubMenu(index){
-    this.setState({selectedIndex:index});
     this.blur();
+    this.setState({selectedIndex:index});
   }
   handleCloseSubMenu(index){
     this.setState({selectedIndex:-1});
@@ -118,6 +131,7 @@ var Menu = class Menu extends React.Component {
   }
   handleCloseSearchMenu(){
     this.setState({selectedIndex:-2});
+    this.focus();
   }
   handleChooseItem(item){
     if(this.props.onChooseItem){
@@ -140,11 +154,50 @@ var Menu = class Menu extends React.Component {
     this.setState({focused:false});
   }
   focus() {
-    this.setState({focused:true});
+      this.setState({focused:true});
+      Mousetrap.bind(['up','down','left','right','enter'], (e)=>{ this.handleKeyInput(e); });
+      if(this.props.main || this.props.isSearchMenu){
+        Mousetrap.bind('esc', (e)=>{ this.handleEscKey(e); });
+      }
   }
   close(){
     this.blur();
     this.props.onClose && this.props.onClose();
+  }
+  handleEscKey(){
+    this.close();
+  }
+  handleKeyInput(e){
+    var { data, itemdata, level } = this.props;
+    let thedata = itemdata || data;
+    let selected_item = thedata.items && thedata.items[this.state.header];
+    let code = e.code;
+    let length = thedata.items.length;
+    switch(code){
+      case 'ArrowDown':
+        this.setState({header: (this.state.header+1)%length});
+      break;
+      case 'ArrowUp':
+        this.setState({header: this.state.header-1<=-1?length-1:(this.state.header-1)%length});
+      break;
+      case 'ArrowLeft':
+      if(level>0){//if it is not root menu
+        this.close();
+      }
+      break;
+      case 'ArrowRight':;
+      if(selected_item && selected_item.items){
+        this.handleOpenSubMenu(this.state.header);
+      }
+      break;
+      case 'Enter':
+      if(!selected_item.items){
+        this.handleChooseItem(selected_item);
+      }else{
+        this.handleOpenSubMenu(this.state.header);
+      }
+      break;
+    }
   }
   render() {
     var { data, pos, itemdata, menuMaxHeight, menuWidth } = this.props;
@@ -183,6 +236,7 @@ var Menu = class Menu extends React.Component {
   renderSearchbar(){
     var { data, selectable, searchbar, menuMaxHeight } = this.props;
     let searchbar_is_active = this.state.selectedIndex==-2?undefined:false;
+    //let searchbar_is_active = undefined;
     let submenu_selectable = {...selectable, menuofselected:false}; //prevent submenu from having a menuofselected
     let maxHeight = data.searchMenuMaxHeight;
     let width = data.searchMenuWidth;
@@ -190,10 +244,9 @@ var Menu = class Menu extends React.Component {
   }
   renderItems(){
     //onOpen and onClose should not be passed onward through ...other
-    var { data, itemdata, searchbar, selectable, selectedItems, onOpen, onClose, menuMaxHeight, ...other } = this.props;
+    var { data, itemdata, searchbar, selectable, selectedItems, onOpen, onClose, menuMaxHeight, level, main, ...other } = this.props;
     let thedata = itemdata || data;
     let style_menu = {};
-
     if(menuMaxHeight){
       style_menu.maxHeight = menuMaxHeight;
     }else if(thedata.optionsMaxHeight){
@@ -201,12 +254,13 @@ var Menu = class Menu extends React.Component {
     }
       if(thedata && thedata.items && thedata.items.length>0){
         return(<ul style={style_menu}>{thedata.items.map((item,index) => {
+          let is_highlighted = this.state.header==index;
           if(item.items){
             let menu_is_visible = this.state.selectedIndex==index;
             let submenu_selectable = {...selectable, menuofselected:false}; //prevent submenu from having a menuofselected
-            return <MenuDropDownItem key={index} data={data} itemdata={item} updatepos={this.changedPos} selectable={submenu_selectable} onChooseItem={this.handleChooseItem.bind(this)} menuVisible={menu_is_visible} onClose={this.handleCloseSubMenu.bind(this,index)} onOpen={this.handleOpenSubMenu.bind(this,index)} {...other} />;
+            return <MenuDropDownItem key={index} level={level+1} data={data} highlighted={is_highlighted} itemdata={item} updatepos={this.changedPos} selectable={submenu_selectable} onChooseItem={this.handleChooseItem.bind(this)} menuVisible={menu_is_visible} onClose={this.handleCloseSubMenu.bind(this,index)} onOpen={this.handleOpenSubMenu.bind(this,index)} {...other} />;
           }else{
-            return <MenuItem key={index} itemdata={item} onChooseItem={this.handleChooseItem.bind(this)} {...other} />;
+            return <MenuItem key={index} itemdata={item} highlighted={is_highlighted} onChooseItem={this.handleChooseItem.bind(this)} {...other} />;
           }
         })}</ul>);
       }else{
@@ -217,7 +271,8 @@ var Menu = class Menu extends React.Component {
 }
 
 Menu.defaultProps = {
-  emptyLabel:"no data..."
+  emptyLabel:"no data...",
+  level: 0
 };
 
 export default Menu;

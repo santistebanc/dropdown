@@ -23,7 +23,7 @@ let mock = {
       {"title":"france","id":"country_france"},
       {"title":"usa","id":"country_usa"},
       {"title":"italy","id":"country_italy"}
-      ]}]
+    ]},{"title":"another item","id":"another"}]
 };
 
 

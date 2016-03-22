@@ -9,6 +9,7 @@
     "less": "^2.5.3",
     "less-loader": "^2.2.1",
     "lodash": "^3.10.1",
+    "mousetrap": "^1.5.3",
     "postcss-loader": "^0.8.0",
     "postcss-nested": "^1.0.0",
     "promise": "^7.0.4",
