@@ -30,12 +30,15 @@ var Menu = class Menu extends React.Component {
   componentWillUnmount(){
     if(this.props.main){
       Mousetrap.unbind(['up','down','left','right','enter']);
+      Mousetrap.unbind('esc');
     }
-    Mousetrap.unbind('esc');
   }
   componentWillReceiveProps(nextProps) {
     if(nextProps.updatepos){
       this.updatePosition();
+    }
+    if(nextProps.updateFocus){
+      this.focus();
     }
     var {data, itemdata} = nextProps;
     let thedata = itemdata || data;
@@ -113,6 +116,9 @@ var Menu = class Menu extends React.Component {
     this.changedPos = true;
   }
   handleOpenSubMenu(index){
+    if(index!==undefined){
+      this.setState({header:index});
+    }
     this.blur();
     this.setState({selectedIndex:index});
   }
@@ -133,7 +139,10 @@ var Menu = class Menu extends React.Component {
     this.setState({selectedIndex:-2});
     this.focus();
   }
-  handleChooseItem(item){
+  handleChooseItem(item,index){
+    if(index!==undefined){
+      this.setState({header:index});
+    }
     if(this.props.onChooseItem){
       this.props.onChooseItem(item); //do nothing and let parent handle it
     }else if(this.props.selectable){
@@ -156,9 +165,7 @@ var Menu = class Menu extends React.Component {
   focus() {
       this.setState({focused:true});
       Mousetrap.bind(['up','down','left','right','enter'], (e)=>{ this.handleKeyInput(e); });
-      if(this.props.main || this.props.isSearchMenu){
-        Mousetrap.bind('esc', (e)=>{ this.handleEscKey(e); });
-      }
+      Mousetrap.bind('esc', (e)=>{ this.handleEscKey(e); });
   }
   close(){
     this.blur();
@@ -173,6 +180,7 @@ var Menu = class Menu extends React.Component {
     let selected_item = thedata.items && thedata.items[this.state.header];
     let code = e.code;
     let length = thedata.items.length;
+    this.props.onKeyInput && this.props.onKeyInput(e);
     switch(code){
       case 'ArrowDown':
         this.setState({header: (this.state.header+1)%length});
@@ -214,7 +222,7 @@ var Menu = class Menu extends React.Component {
       style_wrapper.left = this.state.positionMenu.x;
       style_wrapper.top = this.state.positionMenu.y;
     }
-    //style_wrapper.border = this.state.focused && "3px solid #73AD21";
+    style_wrapper.border = this.state.focused && "3px solid #73AD21";
 
     return (<div ref={"menudiv"} style={style_wrapper} className={"menu-tag"} onClick={this.handleClickInside.bind(this)}>
               {this.renderTitle()}
@@ -244,7 +252,7 @@ var Menu = class Menu extends React.Component {
   }
   renderItems(){
     //onOpen and onClose should not be passed onward through ...other
-    var { data, itemdata, searchbar, selectable, selectedItems, onOpen, onClose, menuMaxHeight, level, main, ...other } = this.props;
+    var { data, itemdata, searchbar, selectable, selectedItems, onOpen, onClose, menuMaxHeight, level, main, onChooseItem, ...other } = this.props;
     let thedata = itemdata || data;
     let style_menu = {};
     if(menuMaxHeight){
@@ -255,12 +263,15 @@ var Menu = class Menu extends React.Component {
       if(thedata && thedata.items && thedata.items.length>0){
         return(<ul style={style_menu}>{thedata.items.map((item,index) => {
           let is_highlighted = this.state.header==index;
+          let partialHandle = function(item){
+            this.handleChooseItem(item,index);
+          }
           if(item.items){
             let menu_is_visible = this.state.selectedIndex==index;
             let submenu_selectable = {...selectable, menuofselected:false}; //prevent submenu from having a menuofselected
-            return <MenuDropDownItem key={index} level={level+1} data={data} highlighted={is_highlighted} itemdata={item} updatepos={this.changedPos} selectable={submenu_selectable} onChooseItem={this.handleChooseItem.bind(this)} menuVisible={menu_is_visible} onClose={this.handleCloseSubMenu.bind(this,index)} onOpen={this.handleOpenSubMenu.bind(this,index)} {...other} />;
+            return <MenuDropDownItem key={index} level={level+1} data={data} highlighted={is_highlighted} itemdata={item} updatepos={this.changedPos} selectable={submenu_selectable} onChooseItem={partialHandle.bind(this)} menuVisible={menu_is_visible} onClose={this.handleCloseSubMenu.bind(this,index)} onOpen={this.handleOpenSubMenu.bind(this,index)} {...other} />;
           }else{
-            return <MenuItem key={index} itemdata={item} highlighted={is_highlighted} onChooseItem={this.handleChooseItem.bind(this)} {...other} />;
+            return <MenuItem key={index} itemdata={item} highlighted={is_highlighted} onChooseItem={partialHandle.bind(this)} {...other} />;
           }
         })}</ul>);
       }else{

@@ -4,6 +4,7 @@ import SearchFunction from './SearchFunction.js';
 import Menu from './Menu.jsx';
 import Icon from './Icon.jsx';
 import FloatRightIcon from './FloatRightIcon.jsx';
+var Mousetrap = require("mousetrap/mousetrap.js");
 
 export default class SearchBar extends React.Component {
   constructor(props) {
@@ -17,12 +18,12 @@ export default class SearchBar extends React.Component {
       if(!nextProps.focused){
         this.setState({focused:false});
         this.setState({menuVisible:false});
+        this.setState({value:""});
       }
     }
   }
   showMenu() {
     this.setState({menuVisible:true});
-    //this.props.onOpen && this.props.onOpen(this);
   }
   hideMenu() {
     this.setState({menuVisible:false});
@@ -30,55 +31,68 @@ export default class SearchBar extends React.Component {
   }
   blur() {
     this.setState({focused:false});
+    this.setState({value:""});
     //this.hideMenu();
   }
   focus() {
+    Mousetrap.unbind(['up','down','left','right','enter']);
+    Mousetrap.bind('esc', (e)=>{ this.handleEscKey(e); });
     this.setState({focused:true});
     this.props.onOpen && this.props.onOpen(this);
   }
+  handleSubMenuKeyInput(e){
+    let el = this.refs.input;
+    let node = ReactDom.findDOMNode(el);
+    let pos = node.selectionEnd;
+    if(e.code == 'ArrowDown' || e.code == 'ArrowUp'){
+      this.placeCursorAt = pos;
+    }else{
+      this.placeCursorAt = undefined;
+    }
+  }
+  handleSelectText(e){
+    e.preventDefault();
+    e.stopPropagation();
+    let el = this.refs.input;
+    let node = ReactDom.findDOMNode(el);
+    if(this.placeCursorAt!==undefined){
+      createSelection(node, this.placeCursorAt, this.placeCursorAt);
+      this.placeCursorAt = undefined;
+    }
+  }
+  handleEscKey(){
+    this.blur();
+    this.hideMenu();
+  }
   handleCloseMenu() {
-    console.log('here');
     this.blur();
     this.hideMenu();
   }
   handleChangeText(event){
+    this.changedInput = true;
     let newvalue = event.target.value;
     this.setState({value:newvalue});
     if(newvalue.length==0){
-      console.log('hidemenu');
       this.blur();
       this.hideMenu();
     }else {
       this.searchInput(newvalue);
-      if(this.search_output.length == 0){
-        console.log('output = 0');
+      if(this.search_output && this.search_output.length == 0){
         this.showMenu();
-        this.blur();
-        this.props.onClose && this.props.onClose(this);
-      }else{
-        console.log('showmenu');
         this.focus();
+      }else{
         this.showMenu();
+        this.focus();
       }
     }
   }
-  handleFocusBar(event){
-    //this.focus();
-    // let newvalue = event.target.value;
-    // if(newvalue.length>0){
-    //   this.searchInput(newvalue);
-    //   this.showMenu();
-    // }
-  }
-  handleBlurBar(event){
-    let el = this.refs.input;
-    let node = ReactDom.findDOMNode(el);
-    node.focus();
-  }
   handleClickInside(event){
+    let newvalue = event.target.value;
     event.stopPropagation();
+    this.focus();
+    this.searchInput(newvalue);
     this.showMenu();
-    if(this.search_output.length>0){
+    if(this.search_output && this.search_output.length>0){
       this.props.onOpen && this.props.onOpen(this);
     }
     //this.focus();
@@ -99,19 +113,28 @@ export default class SearchBar extends React.Component {
       return <div><span className="menu-light">{path_output}</span>{item_output}</div>;
     };
   }
+  componentWillUpdate(){
+    let el = this.refs.input;
+    let node = ReactDom.findDOMNode(el);
+    node.focus();
+  }
   render(){
     //data has to appear here so that it is not passed with ...other
     var { data, placeholder, autoFocus, itemCustomContent, onClose, ...other } = this.props;
     let searchdata = this.state.searchResults;
     let style_wrapper = {};
-    //style_wrapper.border = this.state.focused && "3px solid #73AD21";
-    let renderpos = (this.search_output && this.search_output.length>0)?'bottom':'left';
+    style_wrapper.border = this.state.focused && "3px solid #73AD21";
+    //let renderpos = (this.search_output && this.search_output.length>0)?'bottom':'left';
     return(
       <div style={style_wrapper} onClick={this.handleClickInside.bind(this)}>
-        <input ref={"input"} type="text" value={this.state.value} placeholder={placeholder} autoFocus={autoFocus} onChange={this.handleChangeText.bind(this)} onFocus={this.handleFocusBar.bind(this)} onBlur={this.handleBlurBar.bind(this)}/>
-        {this.state.menuVisible && <Menu el={this.refs.input} data={data} isSearchMenu dropdownPos={renderpos} itemdata={searchdata} onClose={this.handleCloseMenu.bind(this)} itemCustomContent={this.customItem} {...other} />}
+        <input ref={"input"} type="text" value={this.state.value} placeholder={placeholder} autoFocus onSelect={this.handleSelectText.bind(this)} onChange={this.handleChangeText.bind(this)}/>
+        {this.state.menuVisible && <Menu el={this.refs.input} data={data} isSearchMenu onKeyInput={this.handleSubMenuKeyInput.bind(this)} updateFocus={this.changedInput} dropdownPos={"bottom"} itemdata={searchdata} onClose={this.handleCloseMenu.bind(this)} itemCustomContent={this.customItem} {...other} />}
       </div>
     );
+  }
+  componentDidUpdate(){
+    this.changedInput = false;
+    this.placeCursorAt = undefined;
   }
 }
 
@@ -132,3 +155,21 @@ function formatText(string,positions,size){
   }
   return result;
 }
+
+function createSelection(field, start, end) {
+    if( field.createTextRange ) {
+      var selRange = field.createTextRange();
+      selRange.collapse(true);
+      selRange.moveStart('character', start);
+      selRange.moveEnd('character', end);
+      selRange.select();
+      field.focus();
+    } else if( field.setSelectionRange ) {
+      field.focus();
+      field.setSelectionRange(start, end);
+    } else if( typeof field.selectionStart != 'undefined' ) {
+      field.selectionStart = start;
+      field.selectionEnd = end;
+      field.focus();
+    }
+  }
