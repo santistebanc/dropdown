@@ -29,8 +29,8 @@ var Menu = class Menu extends React.Component {
   }
   componentWillUnmount(){
     if(this.props.main){
-      Mousetrap.unbind(['up','down','left','right','enter']);
-      Mousetrap.unbind('esc');
+      //Mousetrap.unbind(['up','down','left','right','enter']);
+      //Mousetrap.unbind('esc');
     }
   }
   componentWillReceiveProps(nextProps) {
@@ -128,8 +128,14 @@ var Menu = class Menu extends React.Component {
   }
   handleClickInside(event){
     event.stopPropagation();
-    this.setState({selectedIndex:-1});
-    this.focus();
+    var { data, itemdata } = this.props;
+    let thedata = itemdata || data;
+    if(!thedata || !thedata.items || !thedata.items.length>0){
+      this.close();
+    }else{
+      this.setState({selectedIndex:-1});
+      this.focus();
+    }
   }
   handleOpenSearchMenu(){
     this.setState({selectedIndex:-2});
@@ -199,7 +205,7 @@ var Menu = class Menu extends React.Component {
       }
       break;
       case 'Enter':
-      if(!selected_item.items){
+      if(selected_item && !selected_item.items){
         this.handleChooseItem(selected_item);
       }else{
         this.handleOpenSubMenu(this.state.header);
@@ -222,7 +228,7 @@ var Menu = class Menu extends React.Component {
       style_wrapper.left = this.state.positionMenu.x;
       style_wrapper.top = this.state.positionMenu.y;
     }
-    style_wrapper.border = this.state.focused && "3px solid #73AD21";
+    //style_wrapper.border = this.state.focused && "3px solid #73AD21";
 
     return (<div ref={"menudiv"} style={style_wrapper} className={"menu-tag"} onClick={this.handleClickInside.bind(this)}>
               {this.renderTitle()}

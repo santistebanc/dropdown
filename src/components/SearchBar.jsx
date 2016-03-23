@@ -123,7 +123,7 @@ export default class SearchBar extends React.Component {
     var { data, placeholder, autoFocus, itemCustomContent, onClose, ...other } = this.props;
     let searchdata = this.state.searchResults;
     let style_wrapper = {};
-    style_wrapper.border = this.state.focused && "3px solid #73AD21";
+    //style_wrapper.border = this.state.focused && "3px solid #73AD21";
     //let renderpos = (this.search_output && this.search_output.length>0)?'bottom':'left';
     return(
       <div style={style_wrapper} onClick={this.handleClickInside.bind(this)}>

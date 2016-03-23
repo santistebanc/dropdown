@@ -25,7 +25,8 @@ function RecursiveSearch(items,input,path){
 }
 
 
-function getAllIndexes(string, sub) {
+function getAllIndexes(string, subf) {
+    let sub = subf.toLowerCase();
     let indexes = [];
     let start = 0;
     let length = string.length;
