@@ -63,6 +63,7 @@ class DropDown extends React.Component {
 function extractAllItems(data){
   let list = [];
   recursiveSearch(data);
+  list.sort(keysrt('title'));
   return list;
   function recursiveSearch(data){
     if(data.items && data.items.length>0){
@@ -72,6 +73,13 @@ function extractAllItems(data){
       }
     }else{
       return data;
+    }
+  }
+  function keysrt(key) {
+    return function(a,b){
+     if (a[key] > b[key]) return 1;
+     if (a[key] < b[key]) return -1;
+     return 0;
     }
   }
 }
