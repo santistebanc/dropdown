@@ -80,6 +80,14 @@
   background-color: @highlighted-color;
 }
 
+.menu-expand-but{
+    float: right;
+    padding: 1px;
+    width: 30px;
+    height: 20px;
+    background: #fff;
+}
+
 .menu-tag {
   z-index: 1000;
   display: block;
@@ -93,6 +101,7 @@
     color: @disabled-text-color;
   }
   .float-right{
+    display: block;
     float:right;
     padding-left: 5px;
   }
@@ -106,6 +115,10 @@
   ul{
     overflow: auto;
     li{
+      div{
+        // clear:both;
+        // display: block;
+      }
       #item-style;
       &:hover {
         #item-hover-style

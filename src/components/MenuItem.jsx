@@ -15,9 +15,9 @@ class MenuItem extends React.Component {
   }
   render() {
     var { itemdata, itemCustomContent, highlighted } = this.props;
-    var content = itemCustomContent && itemCustomContent(itemdata) || <span className={itemdata.selected && "menu-light"}><Icon name={itemdata.icon}/>{itemdata.title}<FloatRightIcon name={itemdata.selected?"remove":""} /></span>;
+    var content = itemCustomContent && itemCustomContent(itemdata) || <span className={itemdata.selected && "menu-light"}><FloatRightIcon name={itemdata.selected?"remove":""} /><Icon name={itemdata.icon}/>{itemdata.title}</span>;
 
-    return <li onClick={this.handleOnClick.bind(this)} className={highlighted && "menu-highlighted"} title={itemdata.hint || itemdata.title}>{content}</li>;
+    return <li ref={(el)=>{highlighted && el && el.scrollIntoView(false)}} onClick={this.handleOnClick.bind(this)} className={highlighted && "menu-highlighted"} title={itemdata.hint || itemdata.title}>{content}</li>;
 
   }
 }

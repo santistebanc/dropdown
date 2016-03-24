@@ -109,7 +109,7 @@ export default class SearchBar extends React.Component {
           path_output.push(slot);
         });
         let formated_title = formatText(itemdata.title,itemdata.mark_pos,value.length);
-        let item_output = <span className={itemdata.selected && "menu-light"}><Icon name={itemdata.icon}/>{formated_title}<FloatRightIcon name={itemdata.selected?"remove":""} /></span>;
+        let item_output = <span className={itemdata.selected && "menu-light"}><FloatRightIcon name={itemdata.selected?"remove":""} /><Icon name={itemdata.icon}/>{formated_title}</span>;
       return <div><span className="menu-light">{path_output}</span>{item_output}</div>;
     };
   }

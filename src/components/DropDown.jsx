@@ -11,6 +11,7 @@ class DropDown extends React.Component {
   constructor(props) {
       super(props);
       this.state = {menuVisible: false};
+      this.allitems = extractAllItems(props.data);
     }
     showMenu() {
       this.setState({menuVisible:true});
@@ -53,10 +54,26 @@ class DropDown extends React.Component {
       var childrenWithProps = React.Children.map(children, (child) => {
           return React.cloneElement(child, {onClick: this.handleClickElement.bind(this), ref:this.findDimensions.bind(this)});
       });
-      let menu = <Menu main el={this.el} onClose={this.hideMenu.bind(this)} {...other} />;
+      let menu = <Menu main el={this.el} onClose={this.hideMenu.bind(this)} allItems={this.allitems} {...other} />;
 
       return <ClickOutHandler onClickOut={this.handleClickOutside.bind(this)}>{childrenWithProps}{this.state.menuVisible && menu}</ClickOutHandler>;
     }
+}
+
+function extractAllItems(data){
+  let list = [];
+  recursiveSearch(data);
+  return list;
+  function recursiveSearch(data){
+    if(data.items && data.items.length>0){
+      for(let i=0;i<data.items.length;i++){
+        let res = recursiveSearch(data.items[i]);
+        res && list.push(res);
+      }
+    }else{
+      return data;
+    }
+  }
 }
 
 export default DropDown;

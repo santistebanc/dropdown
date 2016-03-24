@@ -11,7 +11,7 @@ var Mousetrap = require("mousetrap/mousetrap.js");
 var Menu = class Menu extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {focused:false, selectedIndex:-1, header: -1};
+    this.state = {focused:false, selectedIndex:-1, header: -1, mode:'collapsed'};
     this.changedPos = false; //variable used to force update in submenus
   }
   componentDidMount(){
@@ -115,6 +115,10 @@ var Menu = class Menu extends React.Component {
       this.setState({positionMenu:{x:xpos,y:ypos}});
     this.changedPos = true;
   }
+  handleChangeMode(mode){
+    this.setState({mode:mode});
+
+  }
   handleOpenSubMenu(index){
     if(index!==undefined){
       this.setState({header:index});
@@ -146,12 +150,14 @@ var Menu = class Menu extends React.Component {
     this.focus();
   }
   handleChooseItem(item,index){
+    var { data, itemdata } = this.props;
+    let thedata = itemdata || data;
     if(index!==undefined){
       this.setState({header:index});
     }
     if(this.props.onChooseItem){
       this.props.onChooseItem(item); //do nothing and let parent handle it
-    }else if(this.props.selectable){
+    }else if(this.props.selectable || thedata.selectable){
       if(item.selected){
         item.selected = false;
         let index = this.props.data.selectedItems.indexOf(item);
@@ -199,7 +205,7 @@ var Menu = class Menu extends React.Component {
         this.close();
       }
       break;
-      case 'ArrowRight':;
+      case 'ArrowRight':
       if(selected_item && selected_item.items){
         this.handleOpenSubMenu(this.state.header);
       }
@@ -229,34 +235,77 @@ var Menu = class Menu extends React.Component {
       style_wrapper.top = this.state.positionMenu.y;
     }
     //style_wrapper.border = this.state.focused && "3px solid #73AD21";
-
-    return (<div ref={"menudiv"} style={style_wrapper} className={"menu-tag"} onClick={this.handleClickInside.bind(this)}>
-              {this.renderTitle()}
-              {this.renderMenuOfSelected()}
-              {this.renderSearchbar()}
-              {this.renderItems()}
-            </div>);
+      return (<div ref={"menudiv"} style={style_wrapper} className={"menu-tag"} onClick={this.handleClickInside.bind(this)}>
+                {this.renderExpandBut()}
+                {this.renderTitle()}
+                {this.renderMenuOfSelected()}
+                {this.renderSearchbar()}
+                {this.renderItems()}
+              </div>);
   }
   renderTitle(){
     var { data, itemdata } = this.props;
     let thedata = itemdata || data;
       return <h4>{thedata.title}</h4>;
   }
+  renderExpandBut(){
+    var { data, itemdata, showExpandButton } = this.props;
+    let thedata = itemdata || data;
+    let expbut = showExpandButton || thedata.showExpandButton;
+    if(expbut){
+      let modetochange = this.state.mode=='collapsed'?'expanded':'collapsed';
+      return <button className={"menu-expand-but"} onClick={this.handleChangeMode.bind(this,modetochange)}>{"a-z"}</button>;
+    }
+  }
   renderMenuOfSelected(){
-    var { data, selectable, menuMaxHeight } = this.props;
-    let maxHeight = data.menuOfSelectedMaxHeight;
-    return selectable && selectable.menuofselected && <MenuOfSelected data={data} onChooseItem={this.handleChooseItem.bind(this)}/>;
+    var { data, itemdata, selectable, menuMaxHeight, showExpandButton} = this.props;
+    let thedata = itemdata || data;
+    let sel = selectable || thedata.selectable;
+    let maxHeight = sel.menuOfSelectedMaxHeight;
+    return sel && sel.menuofselected && <MenuOfSelected data={data} onChooseItem={this.handleChooseItem.bind(this)}/>;
   }
   renderSearchbar(){
-    var { data, selectable, searchbar, menuMaxHeight } = this.props;
+    var { data, itemdata, selectable, searchbar, menuMaxHeight, showExpandButton } = this.props;
+    let thedata = itemdata || data;
     let searchbar_is_active = this.state.selectedIndex==-2?undefined:false;
-    //let searchbar_is_active = undefined;
-    let submenu_selectable = {...selectable, menuofselected:false}; //prevent submenu from having a menuofselected
-    let maxHeight = data.searchMenuMaxHeight;
-    let width = data.searchMenuWidth;
-    return searchbar && <SearchBar updatepos={this.changedPos} menuWidth={width} menuMaxHeight={maxHeight} focused={searchbar_is_active} data={data} selectable={submenu_selectable} onChooseItem={this.handleChooseItem.bind(this)} onOpen={this.handleOpenSearchMenu.bind(this)} onClose={this.handleCloseSearchMenu.bind(this)} {...searchbar}/>;
+    let sbar = searchbar || thedata.searchbar;
+    let sel = selectable || thedata.selectable;
+    let submenu_selectable = {...sel, menuofselected:false}; //prevent submenu from having a menuofselected
+    let maxHeight = sbar && sbar.searchMenuMaxHeight;
+    let width = sbar && sbar.searchMenuWidth;
+    return sbar && <SearchBar updatepos={this.changedPos} placeholder={sbar.placeholder} menuWidth={width} menuMaxHeight={maxHeight} focused={searchbar_is_active} data={data} selectable={submenu_selectable} onChooseItem={this.handleChooseItem.bind(this)} onOpen={this.handleOpenSearchMenu.bind(this)} onClose={this.handleCloseSearchMenu.bind(this)} {...searchbar}/>;
   }
   renderItems(){
+    if(this.state.mode == 'expanded'){
+      return this.renderExpandedItems();
+    }else{
+      return this.renderCollapsedItems();
+    }
+    this.changedPos = false;
+  }
+  renderExpandedItems(){
+    //onOpen and onClose should not be passed onward through ...other
+    var { data, itemdata, allItems, searchbar, selectable, selectedItems, onOpen, onClose, menuMaxHeight, level, main, onChooseItem, showExpandButton, ...other } = this.props;
+    let thedata = itemdata || data;
+    let style_menu = {};
+    if(menuMaxHeight){
+      style_menu.maxHeight = menuMaxHeight;
+    }else if(thedata.optionsMaxHeight){
+      style_menu.maxHeight = thedata.optionsMaxHeight;
+    }
+
+    let items = allItems;
+    if(items){
+      return(<ul style={style_menu}>{items.map((item,index) => {
+        let is_highlighted = this.state.header==index;
+        let partialHandle = function(item){
+          this.handleChooseItem(item,index);
+        }
+          return <MenuItem key={index} itemdata={item} highlighted={is_highlighted} onChooseItem={partialHandle.bind(this)} {...other} />;
+      })}</ul>);
+    }
+  }
+  renderCollapsedItems(){
     //onOpen and onClose should not be passed onward through ...other
     var { data, itemdata, searchbar, selectable, selectedItems, onOpen, onClose, menuMaxHeight, level, main, onChooseItem, ...other } = this.props;
     let thedata = itemdata || data;
@@ -274,7 +323,8 @@ var Menu = class Menu extends React.Component {
           }
           if(item.items){
             let menu_is_visible = this.state.selectedIndex==index;
-            let submenu_selectable = {...selectable, menuofselected:false}; //prevent submenu from having a menuofselected
+            let sel = selectable || thedata.selectable;
+            let submenu_selectable = {...sel, menuofselected:false}; //prevent submenu from having a menuofselected
             return <MenuDropDownItem key={index} level={level+1} data={data} highlighted={is_highlighted} itemdata={item} updatepos={this.changedPos} selectable={submenu_selectable} onChooseItem={partialHandle.bind(this)} menuVisible={menu_is_visible} onClose={this.handleCloseSubMenu.bind(this,index)} onOpen={this.handleOpenSubMenu.bind(this,index)} {...other} />;
           }else{
             return <MenuItem key={index} itemdata={item} highlighted={is_highlighted} onChooseItem={partialHandle.bind(this)} {...other} />;
@@ -283,7 +333,6 @@ var Menu = class Menu extends React.Component {
       }else{
           return <p className={"empty-label"}>{this.props.emptyLabel}</p>;
       }
-      this.changedPos = false;
   }
 }
 
